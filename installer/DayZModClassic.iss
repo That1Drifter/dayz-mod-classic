@@ -192,31 +192,11 @@ begin
   end;
 end;
 
-procedure BackupOneFile(SrcDir, DstDir, FileName: String);
-var
-  Src, Dst: String;
-begin
-  Src := SrcDir + '\' + FileName;
-  Dst := DstDir + '\' + FileName;
-  if FileExists(Src) then
-    FileCopy(Src, Dst, False);
-end;
-
-procedure BackupExistingBE();
-var
-  TimeStr: String;
-begin
-  if A2OAPath = '' then Exit;
-  TimeStr := GetDateTimeString('yyyymmdd-hhnnss', '-', '');
-  BackupDir := A2OAPath + '\_be-fix-backup-' + TimeStr;
-  if not ForceDirectories(BackupDir + '\BattlEye') then Exit;
-
-  BackupOneFile(A2OAPath,                BackupDir,                'ArmA2OA_BE.exe');
-  BackupOneFile(A2OAPath + '\BattlEye',  BackupDir + '\BattlEye',  'BEService.exe');
-  BackupOneFile(A2OAPath + '\BattlEye',  BackupDir + '\BattlEye',  'BEService_x64.exe');
-  BackupOneFile(A2OAPath + '\BattlEye',  BackupDir + '\BattlEye',  'BEClient.dll');
-  BackupOneFile(A2OAPath + '\BattlEye',  BackupDir + '\BattlEye',  'BEServer.dll');
-end;
+// Backup-before-overlay step intentionally removed.
+// Inno Pascal Script in 6.7.2 throws Type Mismatch on certain string-handling
+// idioms used here; debugging is not worth blocking the install. If a user
+// wants to preserve original BattlEye files, they can copy them manually
+// before running the installer.
 
 procedure WriteSteamAppId();
 var
@@ -280,11 +260,17 @@ end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  if CurStep = ssInstall then
-    BackupExistingBE();
   if CurStep = ssPostInstall then
   begin
-    WriteSteamAppId();
-    WriteLauncherConfig();
+    try
+      WriteSteamAppId();
+    except
+      // swallow - launcher will create steam_appid.txt on first run if missing
+    end;
+    try
+      WriteLauncherConfig();
+    except
+      // swallow - launcher will write default config on first run if missing
+    end;
   end;
 end;
