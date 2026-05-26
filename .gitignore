@@ -1,0 +1,42 @@
+# Build artifacts
+bin/
+obj/
+*.exe
+*.zip
+*.7z
+
+# Inno Setup output
+installer/Output/
+installer/payload/
+
+# .NET
+*.user
+*.suo
+.vs/
+*.nupkg
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Logs / temp
+*.log
+*.RPT
+*.tmp
+
+# Server runtime data (never commit)
+server/MySQL/
+server/@dayzmodclassic/
+server/libmysql.dll
+server/mysqlcppconn.dll
+server/cfgdayz/server_console.log
+server/cfgdayz/HiveExt.log
+
+# Local configs
+.env
+*.local

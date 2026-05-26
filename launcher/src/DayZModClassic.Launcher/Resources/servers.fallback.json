@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Official VPS",
+    "host": "85.239.231.196",
+    "port": 2302,
+    "description": "Official DayZ Mod Classic server",
+    "version": "1.0.0",
+    "official": true
+  }
+]
