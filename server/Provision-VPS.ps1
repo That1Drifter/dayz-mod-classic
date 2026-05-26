@@ -14,10 +14,20 @@
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
+param(
+    [Parameter(Mandatory=$true)] [string]$SteamUser,
+    [Parameter(Mandatory=$true)] [string]$SteamPassword,
+    [string]$SteamGuardCode = ""
+)
+
 # Configurable paths
 $SteamCmdRoot = "C:\steamcmd"
-$A2OAServerRoot = "C:\Program Files (x86)\Steam\steamapps\common\Arma 2 Operation Arrowhead"
+$A2OAServerRoot = "C:\arma2oa"
 $SteamCmdZipUrl = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"
+
+# App IDs (per dayz-classic-test-server-files/steamcmd-server-setup.md)
+$AppA2 = 33900       # Arma 2 (Chernarus assets)
+$AppA2OA = 33905     # Arma 2: Operation Arrowhead
 
 Write-Host ""
 Write-Host "==========================================================="
@@ -46,23 +56,31 @@ Write-Host "[2/4] Updating SteamCMD..."
 & "$SteamCmdRoot\steamcmd.exe" +quit | Out-Null
 Write-Host "    SteamCMD updated."
 
-# --- 3. Install Arma 2 OA Dedicated Server (app 33935, anonymous) ------------
+# --- 3. Install Arma 2 base + Arma 2 OA (apps 33900 + 33905) -----------------
 
-Write-Host "[3/4] Installing Arma 2: OA Dedicated Server (Steam app 33935)..."
-Write-Host "    This downloads ~3 GB. Initial run takes 10-30 minutes."
+Write-Host "[3/4] Installing Arma 2 base ($AppA2) + Arma 2 OA ($AppA2OA)..."
+Write-Host "    Combined download ~8 GB. Initial run takes 15-60 minutes."
 
 if (-not (Test-Path $A2OAServerRoot)) {
     New-Item -ItemType Directory -Path $A2OAServerRoot -Force | Out-Null
 }
 
-$steamCmdArgs = @(
-    "+force_install_dir `"$A2OAServerRoot`"",
-    "+login anonymous",
-    "+app_update 33935 validate",
-    "+quit"
-) -join " "
+# Build login string with optional Steam Guard code
+$loginArg = "+login $SteamUser $SteamPassword"
+if ($SteamGuardCode) { $loginArg += " $SteamGuardCode" }
 
-Start-Process -FilePath "$SteamCmdRoot\steamcmd.exe" -ArgumentList $steamCmdArgs -NoNewWindow -Wait
+# Run twice to absorb the self-update interrupt quirk
+foreach ($pass in 1..2) {
+    Write-Host "    Pass $pass of 2 (self-update absorber)..."
+    $steamCmdArgs = @(
+        "+force_install_dir `"$A2OAServerRoot`"",
+        $loginArg,
+        "+app_update $AppA2 validate",
+        "+app_update $AppA2OA validate",
+        "+quit"
+    ) -join " "
+    Start-Process -FilePath "$SteamCmdRoot\steamcmd.exe" -ArgumentList $steamCmdArgs -NoNewWindow -Wait
+}
 
 # --- 4. Verify ----------------------------------------------------------------
 
@@ -77,21 +95,25 @@ if (-not (Test-Path $serverExe)) {
 $size = [math]::Round((Get-Item $serverExe).Length / 1MB, 1)
 Write-Host "    arma2oaserver.exe present ($size MB)"
 
-# Check for Chernarus assets - critical for DayZ
-$chernarusPbo = Join-Path $A2OAServerRoot "Addons\chernarus.pbo"
-$cawPbo = Join-Path $A2OAServerRoot "Addons\ca.pbo"
-if (Test-Path $chernarusPbo) {
-    Write-Host "    Chernarus assets present (chernarus.pbo)"
+# Check for Chernarus + CA assets (A2 base) — critical for DayZ mission
+$chernarusPbo = Get-ChildItem -Path $A2OAServerRoot -Filter "chernarus.pbo" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+$caPbo = Get-ChildItem -Path $A2OAServerRoot -Filter "ca.pbo" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+
+if ($chernarusPbo) {
+    Write-Host "    Chernarus assets present: $($chernarusPbo.FullName)"
 } else {
-    Write-Host "    WARN: chernarus.pbo NOT found. DayZ mission will fail to load." -ForegroundColor Yellow
-    Write-Host "    The OA dedicated server may not include Chernarus assets." -ForegroundColor Yellow
-    Write-Host "    Workaround options:" -ForegroundColor Yellow
-    Write-Host "      a) Install Steam + Arma 2 base game (app 33900) via Steam GUI (RDP needed)" -ForegroundColor Yellow
-    Write-Host "      b) Copy chernarus PBOs from a licensed install over SCP" -ForegroundColor Yellow
+    Write-Host "    WARN: chernarus.pbo NOT found anywhere under $A2OAServerRoot" -ForegroundColor Yellow
+    Write-Host "    DayZ mission will fail to load Chernarus. Verify app 33900 installed correctly." -ForegroundColor Yellow
 }
 
-if (Test-Path $cawPbo) {
-    Write-Host "    CA assets present (ca.pbo)"
+if ($caPbo) {
+    Write-Host "    CA assets present: $($caPbo.FullName)"
+}
+
+# A2 base may be installed to a sibling Common dir by SteamCMD
+$siblingA2 = "C:\arma2"
+if (Test-Path "$siblingA2\AddOns\chernarus.pbo") {
+    Write-Host "    A2 base detected at sibling path: $siblingA2"
 }
 
 Write-Host ""
