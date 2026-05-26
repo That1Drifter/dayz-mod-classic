@@ -2,8 +2,8 @@
 # DayZ Mod Classic 1.0.0 - VPS Provisioning (one-shot prereq)
 # =============================================================================
 # Run on a fresh Windows Server (2016+) BEFORE INSTALL_SERVER.ps1.
-# Installs SteamCMD and Arma 2: Operation Arrowhead Dedicated Server
-# (Steam app 33935, anonymous-login free download).
+# Installs SteamCMD and Arma 2 + Arma 2: Operation Arrowhead (apps 33900 + 33905)
+# via a logged-in Steam account that owns both titles.
 #
 # After this completes, run INSTALL_SERVER.ps1 from the unpacked server
 # bundle to deploy the mod + configs + scheduled task.
@@ -11,14 +11,14 @@
 
 #Requires -RunAsAdministrator
 
-$ErrorActionPreference = "Stop"
-$ProgressPreference = "SilentlyContinue"
-
 param(
     [Parameter(Mandatory=$true)] [string]$SteamUser,
     [Parameter(Mandatory=$true)] [string]$SteamPassword,
     [string]$SteamGuardCode = ""
 )
+
+$ErrorActionPreference = "Stop"
+$ProgressPreference = "SilentlyContinue"
 
 # Configurable paths
 $SteamCmdRoot = "C:\steamcmd"
