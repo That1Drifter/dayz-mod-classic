@@ -192,33 +192,30 @@ begin
   end;
 end;
 
+procedure BackupOneFile(SrcDir, DstDir, FileName: String);
+var
+  Src, Dst: String;
+begin
+  Src := SrcDir + '\' + FileName;
+  Dst := DstDir + '\' + FileName;
+  if FileExists(Src) then
+    FileCopy(Src, Dst, False);
+end;
+
 procedure BackupExistingBE();
 var
   TimeStr: String;
-  SrcFile: String;
-  Files: TArrayOfString;
-  i: Integer;
 begin
   if A2OAPath = '' then Exit;
   TimeStr := GetDateTimeString('yyyymmdd-hhnnss', '-', '');
   BackupDir := A2OAPath + '\_be-fix-backup-' + TimeStr;
   if not ForceDirectories(BackupDir + '\BattlEye') then Exit;
 
-  SrcFile := A2OAPath + '\ArmA2OA_BE.exe';
-  if FileExists(SrcFile) then
-    FileCopy(SrcFile, BackupDir + '\ArmA2OA_BE.exe', False);
-
-  SetArrayLength(Files, 4);
-  Files[0] := 'BEService.exe';
-  Files[1] := 'BEService_x64.exe';
-  Files[2] := 'BEClient.dll';
-  Files[3] := 'BEServer.dll';
-  for i := 0 to 3 do
-  begin
-    SrcFile := A2OAPath + '\BattlEye\' + Files[i];
-    if FileExists(SrcFile) then
-      FileCopy(SrcFile, BackupDir + '\BattlEye\' + Files[i], False);
-  end;
+  BackupOneFile(A2OAPath,                BackupDir,                'ArmA2OA_BE.exe');
+  BackupOneFile(A2OAPath + '\BattlEye',  BackupDir + '\BattlEye',  'BEService.exe');
+  BackupOneFile(A2OAPath + '\BattlEye',  BackupDir + '\BattlEye',  'BEService_x64.exe');
+  BackupOneFile(A2OAPath + '\BattlEye',  BackupDir + '\BattlEye',  'BEClient.dll');
+  BackupOneFile(A2OAPath + '\BattlEye',  BackupDir + '\BattlEye',  'BEServer.dll');
 end;
 
 procedure WriteSteamAppId();
