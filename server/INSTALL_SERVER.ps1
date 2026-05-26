@@ -27,16 +27,18 @@ Write-Host ""
 Write-Host "[1/6] Locating Arma 2: Operation Arrowhead install..."
 
 function Find-A2OA {
-    $candidates = @()
-    $steamReg = Get-ItemProperty "HKCU:\SOFTWARE\Valve\Steam" -ErrorAction SilentlyContinue
-    if (-not $steamReg) {
-        throw "Steam not installed (no HKCU\SOFTWARE\Valve\Steam key)."
+    # Search order: explicit common VPS path -> Steam library scan
+    $explicitCandidates = @("C:\arma2oa", "C:\arma2", "C:\Program Files\Arma 2 Operation Arrowhead")
+    foreach ($c in $explicitCandidates) {
+        if (Test-Path (Join-Path $c "arma2oaserver.exe")) { return $c }
     }
+
+    # Steam library scan (for player boxes with normal Steam install)
+    $steamReg = Get-ItemProperty "HKCU:\SOFTWARE\Valve\Steam" -ErrorAction SilentlyContinue
+    if (-not $steamReg) { return $null }
     $steamPath = $steamReg.SteamPath
     $vdf = Join-Path $steamPath "steamapps\libraryfolders.vdf"
-    if (-not (Test-Path $vdf)) {
-        throw "libraryfolders.vdf not found at $vdf"
-    }
+    if (-not (Test-Path $vdf)) { return $null }
     $libs = @($steamPath)
     Get-Content $vdf | ForEach-Object {
         if ($_ -match '"path"\s+"([^"]+)"') {
@@ -44,20 +46,13 @@ function Find-A2OA {
         }
     }
     foreach ($lib in $libs) {
-        $manifest = Join-Path $lib "steamapps\appmanifest_33930.acf"
-        if (Test-Path $manifest) {
-            $candidates += (Join-Path $lib "steamapps\common\Arma 2 Operation Arrowhead")
-        }
+        $candidate = Join-Path $lib "steamapps\common\Arma 2 Operation Arrowhead"
+        if (Test-Path (Join-Path $candidate "arma2oaserver.exe")) { return $candidate }
     }
-    return $candidates | Where-Object { Test-Path (Join-Path $_ "arma2oaserver.exe") } | Select-Object -First 1
+    return $null
 }
 
-try {
-    $A2OA = Find-A2OA
-} catch {
-    Write-Host "ERROR: $($_.Exception.Message)" -ForegroundColor Red
-    exit 1
-}
+$A2OA = Find-A2OA
 
 if (-not $A2OA) {
     Write-Host "ERROR: Arma 2: Operation Arrowhead not found. Install via Steam first." -ForegroundColor Red
