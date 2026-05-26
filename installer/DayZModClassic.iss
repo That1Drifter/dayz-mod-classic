@@ -66,6 +66,9 @@ Source: "payload\mod\that1drifter.bikey"; DestDir: "{code:GetA2OAPath}\Keys"; Fl
 Source: "payload\be-fix\ArmA2OA_BE.exe"; DestDir: "{code:GetA2OAPath}"; Flags: ignoreversion
 Source: "payload\be-fix\BattlEye\*"; DestDir: "{code:GetA2OAPath}\BattlEye"; Flags: ignoreversion
 
+; steam_appid.txt - required for Steam identity attach (else server kicks "Player without identity")
+Source: "payload\steam_appid.txt"; DestDir: "{code:GetA2OAPath}"; Flags: ignoreversion
+
 ; README and SmartScreen note
 Source: "..\website\downloads\install-troubleshooting.md"; DestDir: "{app}"; DestName: "TROUBLESHOOTING.md"; Flags: ignoreversion
 
