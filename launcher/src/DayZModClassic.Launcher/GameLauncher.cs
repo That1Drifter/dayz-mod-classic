@@ -54,7 +54,7 @@ public static class GameLauncher
         if (string.IsNullOrWhiteSpace(cfg.A2oaPath) || !Directory.Exists(cfg.A2oaPath))
             throw new LaunchException("Arma 2: Operation Arrowhead is not installed (path not detected).");
 
-        var a2oaRoot = cfg.A2oaPath;
+        var a2oaRoot = NormalizeWinPath(cfg.A2oaPath);
         var beExe = Path.Combine(a2oaRoot, "ArmA2OA_BE.exe");
         var modPbo = Path.Combine(a2oaRoot, ModPboRelative);
         var appidFile = Path.Combine(a2oaRoot, "steam_appid.txt");
@@ -98,8 +98,10 @@ public static class GameLauncher
         }
 
         // Build mod chain: A2Base ; EXPANSION ; CA ; @dayzmodclassic
-        // If A2BasePath is empty, fall back to leading separator removal (mirrors CONNECT.ps1 behavior with C:\A2).
-        var a2Base = string.IsNullOrEmpty(cfg.A2BasePath) ? "" : cfg.A2BasePath;
+        // Arma's -mod parser expects backslashes + uppercase drive letter on
+        // absolute paths. Mixed slashes (c:/foo\bar) cause silent A2-base mount
+        // failures => "Missing addons: chernarus, dayz_code, ..." => server kick.
+        var a2Base = string.IsNullOrEmpty(cfg.A2BasePath) ? "" : NormalizeWinPath(cfg.A2BasePath);
         var modChain = $"{a2Base};EXPANSION;CA;{ModFolder}";
 
         var args =
@@ -130,4 +132,18 @@ public static class GameLauncher
     }
 
     private static string EscapeArg(string s) => (s ?? "").Replace("\"", "");
+
+    // Normalize a Windows path: forward slashes -> backslashes, uppercase drive letter.
+    // Arma 2 OA's -mod parser silently fails on mixed slashes / lowercase drive in
+    // absolute mod paths; symptom is "Missing addons: chernarus, dayz_code, ...".
+    private static string NormalizeWinPath(string p)
+    {
+        if (string.IsNullOrEmpty(p)) return p;
+        var normalized = p.Replace('/', '\\').TrimEnd('\\');
+        if (normalized.Length >= 2 && normalized[1] == ':')
+        {
+            normalized = char.ToUpperInvariant(normalized[0]) + normalized.Substring(1);
+        }
+        return normalized;
+    }
 }
