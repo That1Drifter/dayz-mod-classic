@@ -25,9 +25,12 @@ $SteamCmdRoot = "C:\steamcmd"
 $A2OAServerRoot = "C:\arma2oa"
 $SteamCmdZipUrl = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"
 
-# App IDs (per dayz-classic-test-server-files/steamcmd-server-setup.md)
+# App IDs (verified via appmanifest content on Steam 2026-05-26):
+#   33900 = Arma 2 (full game, includes Chernarus + CA assets)
+#   33905 = ARMA 2 Dedicated Server (A2 base server only, ~9 MB - NOT what we want)
+#   33930 = Arma 2: Operation Arrowhead (full game, includes arma2oaserver.exe)
 $AppA2 = 33900       # Arma 2 (Chernarus assets)
-$AppA2OA = 33905     # Arma 2: Operation Arrowhead
+$AppA2OA = 33930     # Arma 2: Operation Arrowhead (provides arma2oaserver.exe)
 
 Write-Host ""
 Write-Host "==========================================================="
