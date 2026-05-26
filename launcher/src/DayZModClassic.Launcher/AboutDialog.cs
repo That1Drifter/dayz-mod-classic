@@ -7,7 +7,7 @@ namespace DayZModClassic.Launcher;
 
 public class AboutDialog : Form
 {
-    private const string GitHubUrl = "https://github.com/dayzmodclassic"; // placeholder
+    private const string GitHubUrl = "https://github.com/That1Drifter/dayz-mod-classic"; // placeholder
 
     public AboutDialog(string version)
     {

@@ -163,7 +163,7 @@ arma2oa.exe -mod=@dayzmodclassic -connect=<your-server-IP>:2302
 
 To be added to the official server list (visible to all launcher users):
 1. Verify your server boots and accepts connections
-2. Open an issue at https://github.com/[TBD] with: server name, IP:port, region, description, contact
+2. Open an issue at https://github.com/That1Drifter/dayz-mod-classic with: server name, IP:port, region, description, contact
 3. Or ping #server-list in Discord at https://discord.gg/rgGpjayRMv
 
 The official launcher polls `https://dayzmodclassic.com/servers.json` for the current list.

@@ -44,4 +44,4 @@ Paste the **last 50 lines** of that file into the `#help` channel on Discord. So
 ## Still stuck?
 
 - Discord: https://discord.gg/rgGpjayRMv
-- GitHub issues: https://github.com/[TBD]/issues
+- GitHub issues: https://github.com/That1Drifter/dayz-mod-classic/issues
