@@ -89,7 +89,7 @@ public static class GameLauncher
                     {
                         FileName = steamExe,
                         Arguments = "-silent",
-                        UseShellExecute = false
+                        UseShellExecute = true
                     });
                     await Task.Delay(5000);
                 }
@@ -111,12 +111,18 @@ public static class GameLauncher
             $"-noPause " +
             $"-skipIntro";
 
+        // UseShellExecute=true (ShellExecute API) detaches the spawned process
+        // so it's not a child of this launcher. CONNECT.ps1 on MainPC uses
+        // PowerShell Start-Process which is equivalent. Without this, the
+        // Steam API attach in ArmA2OA.exe can fail (parent process chain
+        // doesn't include Steam.exe), producing "Player without identity"
+        // on server connect.
         var psi = new ProcessStartInfo
         {
             FileName = beExe,
             Arguments = args,
             WorkingDirectory = a2oaRoot,
-            UseShellExecute = false
+            UseShellExecute = true
         };
 
         try
