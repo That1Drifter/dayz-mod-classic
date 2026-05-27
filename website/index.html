@@ -74,6 +74,8 @@
   }
   .status-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--signal);
     animation:pulse 1.6s ease-in-out infinite}
+  .status-pill.is-offline .dot{background:var(--flare);box-shadow:0 0 6px var(--flare)}
+  .status-pill.is-unknown .dot{background:var(--mute);animation-duration:2.6s}
   @keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
 
   /* ---- hero ---- */
@@ -162,11 +164,6 @@
     cursor:pointer;text-transform:uppercase;transition:.15s}
   .copy-btn:hover{border-color:var(--rust);color:var(--rust)}
   .copy-btn.done{border-color:var(--signal);color:var(--signal)}
-  .connect{display:block;text-align:center;text-decoration:none;
-    background:var(--rust);color:#0c0e0f;font-family:'Saira Condensed',sans-serif;
-    font-weight:900;font-size:18px;letter-spacing:.1em;text-transform:uppercase;
-    padding:13px;transition:.15s;border:1px solid var(--rust)}
-  .connect:hover{background:#0c0e0f;color:var(--rust);box-shadow:inset 0 0 0 1px var(--rust)}
   .fc-meta{display:grid;grid-template-columns:repeat(3,1fr);
     border-top:1px solid var(--line);margin-top:18px}
   .fc-meta div{padding:12px 10px;border-right:1px solid var(--line)}
@@ -242,9 +239,9 @@
     <div class="nav-right">
       <a href="#about">About</a>
       <a href="#status">Status</a>
-      <a href="#changelog">Changelog</a>
+      <a href="/changelog/">Changelog</a>
       <a href="/downloads/">Download</a>
-      <div class="status-pill"><span class="dot"></span>SIGNAL&nbsp;<span class="lbl-hide">·&nbsp;CHECKING…</span></div>
+      <div class="status-pill is-unknown" data-status-pill><span class="dot"></span><span data-status-label>SIGNAL&nbsp;<span class="lbl-hide">·&nbsp;CHECKING…</span></span></div>
     </div>
   </div>
 </nav>
@@ -268,11 +265,10 @@
           <span class="ip" id="ip">85.239.231.196:2302</span>
           <button class="copy-btn" id="copy">Copy</button>
         </div>
-        <a class="connect" href="steam://connect/85.239.231.196:2302">Connect via Steam ▸</a>
         <div class="fc-meta">
-          <div><div class="k">Players</div><div class="v">n/a</div></div>
-          <div><div class="k">Map</div><div class="v">Chernarus</div></div>
-          <div><div class="k">Patch</div><div class="v">v1.0.0</div></div>
+          <div><div class="k">Players</div><div class="v" data-stat-players>...</div></div>
+          <div><div class="k">Map</div><div class="v" data-stat-map>Chernarus</div></div>
+          <div><div class="k">Patch</div><div class="v" data-stat-version>v1.0.0</div></div>
         </div>
       </div>
     </div>
@@ -357,23 +353,70 @@
   <div class="wrap">
     <div class="foot-in">
       <div>
-        <a href="/downloads/CHANGELOG.md">▸ Read the changelog</a> —
+        <a href="/changelog/">▸ Read the changelog</a> —
         what's fixed and what's still rough.
         <div class="transmission">// end of transmission · signal degraded</div>
       </div>
-      <div>Built &amp; maintained by <a href="https://x.com/That1Drifter">That1Drifter</a></div>
+      <div>Built &amp; maintained by <a href="https://x.com/That1Drifter">That1Drifter</a> · <a href="https://discord.gg/rgGpjayRMv" rel="noopener noreferrer">Discord</a></div>
     </div>
   </div>
 </footer>
 
 <script>
-  const btn=document.getElementById('copy');
-  btn.addEventListener('click',()=>{
-    navigator.clipboard.writeText('85.239.231.196:2302').then(()=>{
-      btn.textContent='Copied';btn.classList.add('done');
-      setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('done')},1800);
-    }).catch(()=>{btn.textContent='—';});
-  });
+  (function(){
+    var btn=document.getElementById('copy');
+    if(btn){
+      btn.addEventListener('click',function(){
+        navigator.clipboard.writeText('85.239.231.196:2302').then(function(){
+          btn.textContent='Copied';btn.classList.add('done');
+          setTimeout(function(){btn.textContent='Copy';btn.classList.remove('done')},1800);
+        }).catch(function(){btn.textContent='—'});
+      });
+    }
+
+    var POLL_MS=30000;
+    var pill=document.querySelector('[data-status-pill]');
+    var pillLabel=document.querySelector('[data-status-label]');
+    var playersEl=document.querySelector('[data-stat-players]');
+    var mapEl=document.querySelector('[data-stat-map]');
+    var verEl=document.querySelector('[data-stat-version]');
+
+    function setPill(state,label){
+      if(!pill) return;
+      pill.classList.remove('is-online','is-offline','is-unknown');
+      pill.classList.add('is-'+state);
+      if(pillLabel) pillLabel.textContent=label;
+    }
+    function fmtMap(m){
+      if(!m) return 'Chernarus';
+      var s=String(m).toLowerCase();
+      if(s.indexOf('chernarus')!==-1) return 'Chernarus';
+      return m.charAt(0).toUpperCase()+m.slice(1);
+    }
+    function apply(d){
+      if(!d){ setPill('unknown','SIGNAL · UNKNOWN'); return; }
+      var online=d.online===true;
+      var players=typeof d.players==='number'?d.players:null;
+      var max=typeof d.maxPlayers==='number'?d.maxPlayers:40;
+      if(online){
+        setPill('online','SIGNAL · ONLINE'+(players!==null?' '+players+'/'+max:''));
+        if(playersEl) playersEl.textContent=players!==null?players+' / '+max:'...';
+      }else{
+        setPill('offline','SIGNAL · OFFLINE');
+        if(playersEl) playersEl.textContent='0 / '+max;
+      }
+      if(mapEl && d.map) mapEl.textContent=fmtMap(d.map);
+      if(verEl && d.version) verEl.textContent=d.version;
+    }
+    function poll(){
+      fetch('/status.json',{cache:'no-store'})
+        .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+        .then(apply)
+        .catch(function(){ apply(null); });
+    }
+    poll();
+    setInterval(poll,POLL_MS);
+  })();
 </script>
 </body>
 </html>
