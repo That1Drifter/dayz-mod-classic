@@ -123,7 +123,7 @@ Logs:
 
 ## Client connect
 
-Each player runs the `DayZModClassic-Client-1.0.0-Setup-v2.exe` installer on their PC.
+Each player runs the `DayZModClassic-Client-1.0.0-Setup-v3.exe` installer on their PC.
 That bundles the mod + launcher. They connect via the launcher's server list.
 
 For testers without the installer (manual setup):

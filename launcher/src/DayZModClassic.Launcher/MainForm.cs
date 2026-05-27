@@ -31,7 +31,8 @@ public class MainForm : Form
     private Button _btnPlay = null!;
     private Button _btnRpt = null!;
     private Button _btnModFolder = null!;
-    private Button _btnAbout = null!;
+    private Button _btnHelp = null!;
+    private ContextMenuStrip _helpMenu = null!;
     private System.Windows.Forms.Timer _healthTimer = null!;
     private Label _lblStatus = null!;
     private ContextMenuStrip _ctxMenu = null!;
@@ -184,15 +185,24 @@ public class MainForm : Form
         _btnRpt.Click += (_, __) => OpenRpt();
         _btnModFolder = new Button { Text = "Open mod folder", Dock = DockStyle.Fill };
         _btnModFolder.Click += (_, __) => OpenModFolder();
-        _btnAbout = new Button { Text = "About", Dock = DockStyle.Fill };
-        _btnAbout.Click += (_, __) => ShowAbout();
+
+        _helpMenu = new ContextMenuStrip();
+        var miReport = new ToolStripMenuItem("Save diagnostic report...");
+        miReport.Click += (_, __) => SaveDiagReport();
+        var miAbout  = new ToolStripMenuItem("About...");
+        miAbout.Click += (_, __) => ShowAbout();
+        _helpMenu.Items.Add(miReport);
+        _helpMenu.Items.Add(miAbout);
+
+        _btnHelp = new Button { Text = "Help ▾", Dock = DockStyle.Fill };
+        _btnHelp.Click += (_, __) => _helpMenu.Show(_btnHelp, new Point(0, _btnHelp.Height));
 
         actionBar.Controls.Add(lblPlayer, 0, 0);
         actionBar.Controls.Add(_tbName, 1, 0);
         actionBar.Controls.Add(_btnPlay, 2, 0);
         actionBar.Controls.Add(_btnRpt, 3, 0);
         actionBar.Controls.Add(_btnModFolder, 4, 0);
-        actionBar.Controls.Add(_btnAbout, 5, 0);
+        actionBar.Controls.Add(_btnHelp, 5, 0);
 
         _lblStatus = new Label
         {
@@ -241,9 +251,13 @@ public class MainForm : Form
             if (string.IsNullOrEmpty(_config.A2BasePath) && !string.IsNullOrEmpty(det.A2BasePath))
                 _config.A2BasePath = det.A2BasePath!;
             ConfigStore.Save(_config);
+            Logger.Info($"detect run steam=\"{Logger.Scrub(_config.SteamPath ?? "")}\" a2oa=\"{Logger.Scrub(_config.A2oaPath ?? "")}\" a2base=\"{Logger.Scrub(_config.A2BasePath ?? "")}\"");
         }
 
         _tbName.Text = _config.PlayerName;
+
+        var h = GameLauncher.ComputeHealth(_config);
+        Logger.Info($"health startup steam={h.SteamRunning} a2oa={h.A2oaInstalled} mod={h.ModInstalled} be={h.BattlEyeFixPresent}");
 
         UpdateHealth();
         _healthTimer = new System.Windows.Forms.Timer { Interval = 10_000 };
@@ -471,20 +485,24 @@ public class MainForm : Form
 
         _btnPlay.Enabled = false;
         _lblStatus.Text = $"Launching {s.Name}...";
+        Logger.Info($"launch attempt server=\"{s.Name}\" addr={s.Host}:{s.Port}");
         try
         {
             await GameLauncher.LaunchAsync(_config, s, name);
             _lblStatus.Text = $"Launched. Connecting to {s.Host}:{s.Port}.";
+            Logger.Info($"launch ok server=\"{s.Name}\"");
             WindowState = FormWindowState.Minimized;
         }
         catch (GameLauncher.LaunchException ex)
         {
+            Logger.Error($"launch aborted: {ex.Message}");
             MessageBox.Show(this, ex.Message, "DayZ Mod Classic",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             _lblStatus.Text = "Launch aborted.";
         }
         catch (Exception ex)
         {
+            Logger.Exception("launch failed", ex);
             MessageBox.Show(this, $"Unexpected error:\n{ex}", "DayZ Mod Classic",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             _lblStatus.Text = "Launch failed.";
@@ -546,5 +564,41 @@ public class MainForm : Form
     {
         using var dlg = new AboutDialog(AppVersion);
         dlg.ShowDialog(this);
+    }
+
+    private void SaveDiagReport()
+    {
+        try
+        {
+            var h = GameLauncher.ComputeHealth(_config);
+            Logger.Info($"diag report requested health={h}");
+            var zipPath = DiagReport.Build(_config, h, AppVersion);
+            Logger.Info($"diag report saved path=\"{zipPath}\"");
+
+            var msg =
+                "Saved diagnostic report to:" + Environment.NewLine + zipPath + Environment.NewLine + Environment.NewLine +
+                "Contents: launcher logs, Arma RPT, scrubbed config, install diag (if present)," + Environment.NewLine +
+                "and system info. Plain text inside the zip; review before sending." + Environment.NewLine + Environment.NewLine +
+                "Open Explorer at that file now?";
+            var pick = MessageBox.Show(this, msg, "DayZ Mod Classic",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            if (pick == DialogResult.Yes)
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{zipPath}\"")
+                    {
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex) { Logger.Exception("explorer open", ex); }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Exception("SaveDiagReport", ex);
+            MessageBox.Show(this, "Could not save diagnostic report: " + ex.Message,
+                "DayZ Mod Classic", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 }

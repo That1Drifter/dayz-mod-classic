@@ -4,7 +4,7 @@
 ; Build:
 ;   iscc.exe DayZModClassic.iss
 ; Output:
-;   Output\DayZModClassic-Client-1.0.0-Setup-v2.exe
+;   Output\DayZModClassic-Client-1.0.0-Setup-v3.exe
 ;
 ; Prerequisites before compiling:
 ;   1. Build launcher: cd ..\launcher\src\DayZModClassic.Launcher
@@ -16,6 +16,7 @@
 
 #define MyAppName "DayZ Mod Classic"
 #define MyAppVersion "1.0.0"
+#define MyBuildTag "v3"
 #define MyAppPublisher "DayZ Mod Classic"
 #define MyAppURL "https://dayzmodclassic.com"
 #define MyAppExeName "DayZModClassic.exe"
@@ -33,7 +34,7 @@ AppUpdatesURL={#MyAppURL}/downloads
 DefaultDirName={localappdata}\DayZ Mod Classic
 DefaultGroupName={#MyAppName}
 OutputDir=Output
-OutputBaseFilename=DayZModClassic-Client-{#MyAppVersion}-Setup-v2
+OutputBaseFilename=DayZModClassic-Client-{#MyAppVersion}-Setup-{#MyBuildTag}
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
@@ -278,28 +279,187 @@ begin
   end;
 end;
 
+// Diagnostic dump written to %TEMP%\DayZModClassic-install-diag.txt on every
+// install attempt. Captures the exact state of Steam-detection inputs so users
+// hitting "Arma not found" can share a file with us instead of guessing.
+function DiagPath(): String;
+begin
+  Result := GetEnv('TEMP') + '\DayZModClassic-install-diag.txt';
+end;
+
+function RegPresence(RootKey: Integer; SubKey, ValueName: String): String;
+var
+  S: String;
+begin
+  if RegQueryStringValue(RootKey, SubKey, ValueName, S) and (S <> '') then
+    Result := S
+  else
+    Result := '(empty)';
+end;
+
+function BoolStr(B: Boolean): String;
+begin
+  if B then Result := 'true' else Result := 'false';
+end;
+
+function FileExistsStr(Path: String): String;
+var
+  Size: Int64;
+begin
+  if FileExists(Path) then
+  begin
+    if FileSize64(Path, Size) then
+      Result := 'true (' + IntToStr(Size) + ' bytes)'
+    else
+      Result := 'true';
+  end
+  else
+    Result := 'false';
+end;
+
+procedure WriteInstallDiag(ResultTag: String);
+var
+  Diag: TStringList;
+  WinVer: TWindowsVersion;
+  SteamHKCU, SteamHKLMWow, SteamHKLM: String;
+  SteamPath, VdfPath: String;
+  Libs: TStringList;
+  i: Integer;
+  Lib: String;
+begin
+  Diag := TStringList.Create;
+  try
+    Diag.Add('=== DayZ Mod Classic install diagnostic ===');
+    Diag.Add('When reporting an install problem, attach this file in our Discord.');
+    Diag.Add('Paths below may contain your Windows username; redact if needed.');
+    Diag.Add('');
+    Diag.Add('timestamp: ' + GetDateTimeString('yyyy/mm/dd hh:nn:ss', '-', ':'));
+    Diag.Add('installer_version: {#MyAppVersion} ({#MyBuildTag})');
+    Diag.Add('result: ' + ResultTag);
+    Diag.Add('');
+
+    GetWindowsVersionEx(WinVer);
+    Diag.Add('[OS]');
+    Diag.Add('  windows_version: ' + IntToStr(WinVer.Major) + '.' + IntToStr(WinVer.Minor) + '.' + IntToStr(WinVer.Build));
+    Diag.Add('  service_pack: ' + IntToStr(WinVer.ServicePackMajor) + '.' + IntToStr(WinVer.ServicePackMinor));
+    Diag.Add('  product_type: ' + IntToStr(WinVer.ProductType));
+    Diag.Add('  is_64bit: ' + BoolStr(IsWin64));
+    Diag.Add('  elevated: ' + BoolStr(IsAdminInstallMode));
+    Diag.Add('');
+
+    SteamHKCU    := RegPresence(HKCU, 'SOFTWARE\Valve\Steam', 'SteamPath');
+    SteamHKLMWow := RegPresence(HKLM, 'SOFTWARE\WOW6432Node\Valve\Steam', 'InstallPath');
+    SteamHKLM    := RegPresence(HKLM, 'SOFTWARE\Valve\Steam', 'InstallPath');
+    Diag.Add('[Steam registry]');
+    Diag.Add('  HKCU\SOFTWARE\Valve\Steam:SteamPath = ' + SteamHKCU);
+    Diag.Add('  HKLM\SOFTWARE\WOW6432Node\Valve\Steam:InstallPath = ' + SteamHKLMWow);
+    Diag.Add('  HKLM\SOFTWARE\Valve\Steam:InstallPath = ' + SteamHKLM);
+    Diag.Add('');
+
+    SteamPath := GetSteamPath();
+    Diag.Add('[Resolved Steam path]');
+    Diag.Add('  steam_path: ' + SteamPath);
+    Diag.Add('');
+
+    Diag.Add('[libraryfolders.vdf]');
+    if SteamPath <> '' then
+    begin
+      VdfPath := SteamPath + '\steamapps\libraryfolders.vdf';
+      Diag.Add('  path: ' + VdfPath);
+      Diag.Add('  exists: ' + FileExistsStr(VdfPath));
+    end
+    else
+      Diag.Add('  (not checked, no Steam path)');
+    Diag.Add('');
+
+    Diag.Add('[Libraries scanned]');
+    if SteamPath <> '' then
+    begin
+      Libs := TStringList.Create;
+      try
+        ParseLibraryFolders(SteamPath, Libs);
+        for i := 0 to Libs.Count - 1 do
+        begin
+          Lib := Libs[i];
+          Diag.Add('  ' + Lib);
+          Diag.Add('    arma2oa.exe: ' + FileExistsStr(Lib + '\steamapps\common\Arma 2 Operation Arrowhead\arma2oa.exe'));
+          Diag.Add('    ArmA2.exe:   ' + FileExistsStr(Lib + '\steamapps\common\Arma 2\ArmA2.exe'));
+        end;
+      finally
+        Libs.Free;
+      end;
+    end
+    else
+      Diag.Add('  (not scanned, no Steam path)');
+    Diag.Add('');
+
+    Diag.Add('[Steam App Uninstall registry]');
+    Diag.Add('  HKLM\...\Steam App 33930:InstallLocation = ' + RegPresence(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 33930', 'InstallLocation'));
+    Diag.Add('  HKLM\WOW6432Node\...\Steam App 33930:InstallLocation = ' + RegPresence(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 33930', 'InstallLocation'));
+    Diag.Add('  HKCU\...\Steam App 33930:InstallLocation = ' + RegPresence(HKCU, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 33930', 'InstallLocation'));
+    Diag.Add('  HKLM\...\Steam App 33900:InstallLocation = ' + RegPresence(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 33900', 'InstallLocation'));
+    Diag.Add('  HKLM\WOW6432Node\...\Steam App 33900:InstallLocation = ' + RegPresence(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 33900', 'InstallLocation'));
+    Diag.Add('  HKCU\...\Steam App 33900:InstallLocation = ' + RegPresence(HKCU, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 33900', 'InstallLocation'));
+    Diag.Add('');
+
+    Diag.Add('[Resolved by FindArmaInstalls]');
+    if A2OAPath <> '' then
+      Diag.Add('  A2OAPath: ' + A2OAPath)
+    else
+      Diag.Add('  A2OAPath: (empty)');
+    if A2BasePath <> '' then
+      Diag.Add('  A2BasePath: ' + A2BasePath)
+    else
+      Diag.Add('  A2BasePath: (empty)');
+    Diag.Add('');
+    Diag.Add('=== end of diagnostic ===');
+
+    try
+      Diag.SaveToFile(DiagPath());
+    except
+      // ignore - diagnostic file is best-effort
+    end;
+  finally
+    Diag.Free;
+  end;
+end;
+
 function InitializeSetup(): Boolean;
+var
+  DiagFile: String;
 begin
   Result := True;
+  DiagFile := DiagPath();
   if not FindArmaInstalls() then
   begin
+    WriteInstallDiag('missing_a2oa');
     MsgBox('Arma 2: Operation Arrowhead was not found on this system.' + #13#10 + #13#10 +
            'DayZ Mod Classic requires both Arma 2 and Arma 2: Operation Arrowhead to be installed via Steam.' + #13#10 + #13#10 +
-           'Please install them from Steam (https://store.steampowered.com/app/33930/) and run this installer again.',
+           'Please install them from Steam (https://store.steampowered.com/app/33930/) and run this installer again.' + #13#10 + #13#10 +
+           'If you believe Arma 2 OA is installed and the installer is still failing,' + #13#10 +
+           'a diagnostic file was written to:' + #13#10 +
+           DiagFile + #13#10 +
+           'Share it in the DayZ Mod Classic Discord and we will help.',
            mbError, MB_OK);
     Result := False;
     Exit;
   end;
   if A2BasePath = '' then
   begin
+    WriteInstallDiag('missing_a2_base');
     if MsgBox('Arma 2 (base game) was not found, only Operation Arrowhead.' + #13#10 + #13#10 +
              'The base Arma 2 game is required for Chernarus map assets.' + #13#10 + #13#10 +
-             'Install will continue, but the game may not load correctly. Continue?',
+             'Install will continue, but the game may not load correctly. Continue?' + #13#10 + #13#10 +
+             'A diagnostic file was written to ' + DiagFile,
              mbConfirmation, MB_YESNO) <> IDYES then
     begin
       Result := False;
       Exit;
     end;
+  end
+  else
+  begin
+    WriteInstallDiag('found');
   end;
 end;
 
