@@ -4,7 +4,7 @@
 ; Build:
 ;   iscc.exe DayZModClassic.iss
 ; Output:
-;   Output\DayZModClassic-Client-1.0.0-Setup.exe
+;   Output\DayZModClassic-Client-1.0.0-Setup-v2.exe
 ;
 ; Prerequisites before compiling:
 ;   1. Build launcher: cd ..\launcher\src\DayZModClassic.Launcher
@@ -33,7 +33,7 @@ AppUpdatesURL={#MyAppURL}/downloads
 DefaultDirName={localappdata}\DayZ Mod Classic
 DefaultGroupName={#MyAppName}
 OutputDir=Output
-OutputBaseFilename=DayZModClassic-Client-{#MyAppVersion}-Setup
+OutputBaseFilename=DayZModClassic-Client-{#MyAppVersion}-Setup-v2
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
@@ -101,9 +101,27 @@ var
   S: String;
 begin
   Result := '';
-  if RegQueryStringValue(HKCU, 'SOFTWARE\Valve\Steam', 'SteamPath', S) then
+  if RegQueryStringValue(HKCU, 'SOFTWARE\Valve\Steam', 'SteamPath', S) and (S <> '') then
     Result := S;
-  if (Result = '') and RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Valve\Steam', 'InstallPath', S) then
+  if (Result = '') and RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Valve\Steam', 'InstallPath', S) and (S <> '') then
+    Result := S;
+  if (Result = '') and RegQueryStringValue(HKLM, 'SOFTWARE\Valve\Steam', 'InstallPath', S) and (S <> '') then
+    Result := S;
+end;
+
+// Steam writes a per-app Uninstall entry with the literal install dir.
+// Most reliable fallback when libraryfolders.vdf is missing or unreadable.
+function GetSteamAppInstallLocation(AppId: String): String;
+var
+  S, KeyName: String;
+begin
+  Result := '';
+  KeyName := 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App ' + AppId;
+  if RegQueryStringValue(HKLM, KeyName, 'InstallLocation', S) and (S <> '') then
+    Result := S
+  else if RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App ' + AppId, 'InstallLocation', S) and (S <> '') then
+    Result := S
+  else if RegQueryStringValue(HKCU, KeyName, 'InstallLocation', S) and (S <> '') then
     Result := S;
 end;
 
@@ -131,15 +149,22 @@ var
   Line: String;
   P, P2: Integer;
 begin
-  Result := False;
+  // Always returns True: default Steam library is added unconditionally,
+  // so callers can scan it even when libraryfolders.vdf is missing or unreadable.
+  Result := True;
   Libs.Clear;
-  Libs.Add(SteamPath);
+  if SteamPath <> '' then
+    Libs.Add(SteamPath);
   VdfPath := SteamPath + '\steamapps\libraryfolders.vdf';
-  if not FileExists(VdfPath) then
+  if (SteamPath = '') or (not FileExists(VdfPath)) then
     Exit;
   Lines := TStringList.Create;
   try
-    Lines.LoadFromFile(VdfPath);
+    try
+      Lines.LoadFromFile(VdfPath);
+    except
+      Exit;
+    end;
     for i := 0 to Lines.Count - 1 do
     begin
       Line := Lines[i];
@@ -157,7 +182,6 @@ begin
         end;
       end;
     end;
-    Result := True;
   finally
     Lines.Free;
   end;
@@ -170,29 +194,47 @@ var
   i: Integer;
   Candidate: String;
 begin
-  Result := False;
   A2OAPath := '';
   A2BasePath := '';
+
+  // Pass 1: scan Steam library folders (default lib plus any in libraryfolders.vdf).
   SteamPath := GetSteamPath();
-  if SteamPath = '' then
-    Exit;
-  Libs := TStringList.Create;
-  try
-    if not ParseLibraryFolders(SteamPath, Libs) then
-      Exit;
-    for i := 0 to Libs.Count - 1 do
-    begin
-      Candidate := Libs[i] + '\steamapps\common\Arma 2 Operation Arrowhead';
-      if FileExists(Candidate + '\arma2oa.exe') and (A2OAPath = '') then
-        A2OAPath := Candidate;
-      Candidate := Libs[i] + '\steamapps\common\Arma 2';
-      if FileExists(Candidate + '\ArmA2.exe') and (A2BasePath = '') then
-        A2BasePath := Candidate;
+  if SteamPath <> '' then
+  begin
+    Libs := TStringList.Create;
+    try
+      ParseLibraryFolders(SteamPath, Libs);
+      for i := 0 to Libs.Count - 1 do
+      begin
+        Candidate := Libs[i] + '\steamapps\common\Arma 2 Operation Arrowhead';
+        if (A2OAPath = '') and FileExists(Candidate + '\arma2oa.exe') then
+          A2OAPath := Candidate;
+        Candidate := Libs[i] + '\steamapps\common\Arma 2';
+        if (A2BasePath = '') and FileExists(Candidate + '\ArmA2.exe') then
+          A2BasePath := Candidate;
+      end;
+    finally
+      Libs.Free;
     end;
-    Result := (A2OAPath <> '');
-  finally
-    Libs.Free;
   end;
+
+  // Pass 2: per-app Uninstall registry. Catches the case where SteamPath
+  // detection or vdf parsing missed the library (custom installs, elevated
+  // installer not seeing the user's HKCU hive, malformed vdf, etc).
+  if A2OAPath = '' then
+  begin
+    Candidate := GetSteamAppInstallLocation('33930');
+    if (Candidate <> '') and FileExists(Candidate + '\arma2oa.exe') then
+      A2OAPath := Candidate;
+  end;
+  if A2BasePath = '' then
+  begin
+    Candidate := GetSteamAppInstallLocation('33900');
+    if (Candidate <> '') and FileExists(Candidate + '\ArmA2.exe') then
+      A2BasePath := Candidate;
+  end;
+
+  Result := (A2OAPath <> '');
 end;
 
 // Backup-before-overlay step intentionally removed.
