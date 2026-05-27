@@ -40,3 +40,6 @@ server/cfgdayz/HiveExt.log
 # Local configs
 .env
 *.local
+
+# Reference material pulled from sibling repos (local only)
+info/
