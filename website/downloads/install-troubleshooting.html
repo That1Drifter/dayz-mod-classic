@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install Troubleshooting — DayZ Mod Classic</title>
+<meta name="description" content="Fix common install and connect problems with DayZ Mod Classic 1.0.0.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700;900&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0e0f;--bg-2:#121516;--panel:#15181a;--line:#262b2c;--line-bright:#3a4042;
+    --ink:#bdbab0;--ink-bright:#e6e3d8;--mute:#6a6f6e;
+    --rust:#c8602a;--rust-dim:#8a4520;--signal:#9aae5c;--flare:#df3322;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink)}
+  body{font-family:'IBM Plex Mono',monospace;font-size:15px;line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+  body::before{content:"";position:fixed;inset:0;z-index:9000;pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.22) 2px 3px);
+    mix-blend-mode:multiply;opacity:.55;}
+  body::after{content:"";position:fixed;inset:0;z-index:9001;pointer-events:none;
+    background:radial-gradient(120% 90% at 50% 30%,rgba(0,0,0,0) 40%,rgba(0,0,0,.78) 100%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/></svg>");
+    opacity:.5;}
+  ::selection{background:var(--rust);color:#000}
+  a{color:var(--rust);text-decoration:none}
+  a:hover{color:var(--ink-bright)}
+  :focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+
+  nav{border-bottom:1px solid var(--line);position:sticky;top:0;z-index:8000;
+    background:rgba(12,14,15,.94);backdrop-filter:blur(3px);}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{font-family:'Saira Condensed',sans-serif;font-weight:900;font-size:21px;
+    letter-spacing:.12em;color:var(--ink-bright);text-transform:uppercase;text-decoration:none;
+    display:flex;align-items:center;gap:10px;}
+  .brand .blip{width:9px;height:9px;background:var(--flare);
+    box-shadow:0 0 12px var(--flare),0 0 4px #fff;animation:flick 3.4s steps(1) infinite;flex-shrink:0}
+  @keyframes flick{0%,92%,96%{opacity:1}94%,98%{opacity:.15}}
+  .nav-right{display:flex;align-items:center;gap:22px;font-size:12.5px}
+  .nav-right a{text-decoration:none;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);transition:color .2s}
+  .nav-right a:hover{color:var(--ink-bright)}
+
+  .page-head{border-bottom:1px solid var(--line);padding:62px 0 52px;}
+  .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--rust);
+    display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .kicker::before{content:"";width:42px;height:1px;background:var(--rust)}
+  .page-head h1{font-family:'Saira Condensed',sans-serif;font-weight:900;
+    font-size:clamp(38px,5.5vw,72px);line-height:.95;letter-spacing:-.01em;
+    text-transform:uppercase;color:var(--ink-bright);margin-bottom:18px;}
+  .page-head p{max-width:44ch;font-size:15px;color:var(--ink)}
+
+  main{padding:62px 0}
+  .faq{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+  .faq-item{background:var(--bg-2);padding:24px 22px;border-bottom:0}
+  .faq-item h2{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:20px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--rust);margin-bottom:10px;
+    display:flex;align-items:center;gap:10px}
+  .faq-item h2::before{content:"▸";font-size:14px;color:var(--rust-dim);flex-shrink:0}
+  .faq-item p,.faq-item li{font-size:14px;color:var(--ink);line-height:1.7;max-width:64ch}
+  .faq-item ol,.faq-item ul{padding-left:1.4em;margin:10px 0}
+  .faq-item li{margin:4px 0}
+  .faq-item strong{color:var(--ink-bright);font-weight:600}
+  .faq-item code{font-family:'IBM Plex Mono',monospace;font-size:12.5px;
+    background:var(--panel);border:1px solid var(--line);padding:1px 6px;color:var(--ink-bright)}
+  .faq-item a{color:var(--rust)}
+  .faq-item a:hover{color:var(--ink-bright)}
+
+  footer{padding:46px 0 58px;border-top:1px solid var(--line)}
+  .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;
+    font-size:12px;letter-spacing:.06em;color:var(--mute)}
+  .foot-in a{color:var(--ink);text-decoration:none}
+  .foot-in a:hover{color:var(--rust)}
+  .transmission{font-size:10.5px;letter-spacing:.22em;color:var(--rust-dim);text-transform:uppercase;margin-top:8px}
+
+  @media(max-width:500px){.wrap{padding:0 16px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-in">
+    <a class="brand" href="/"><span class="blip"></span>DayZ&nbsp;Mod&nbsp;Classic</a>
+    <div class="nav-right">
+      <a href="/#about">About</a>
+      <a href="/downloads/">Download</a>
+      <a href="https://discord.gg/rgGpjayRMv" rel="noopener">Discord</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-head">
+  <div class="wrap">
+    <div class="kicker">DayZ Mod Classic · Install Help</div>
+    <h1>Install<br>troubleshooting</h1>
+    <p>Common problems hitting first-time players, and how to fix each one.</p>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <div class="faq">
+
+      <div class="faq-item">
+        <h2>Installer says Arma 2 OA not detected</h2>
+        <p>The installer looks for Arma 2: Operation Arrowhead in your Steam library. If it can't find it:</p>
+        <ol>
+          <li>Install Steam if you haven't already.</li>
+          <li>Buy and install both <strong>Arma 2</strong> and <strong>Arma 2: Operation Arrowhead</strong> on Steam.</li>
+          <li>Launch Arma 2: Operation Arrowhead once from Steam to confirm it works.</li>
+          <li>Re-run <code>DayZModClassic-Client-1.0.0-Setup.exe</code>.</li>
+        </ol>
+      </div>
+
+      <div class="faq-item">
+        <h2>Launcher says "Missing addons"</h2>
+        <p>Arma 2 is not installed or Steam returned a bad path. Make sure both Arma 2 and A2OA are fully installed via Steam, then re-run the mod installer. The installer can safely run on top of an existing install; it repairs missing files.</p>
+      </div>
+
+      <div class="faq-item">
+        <h2>Launcher says BattlEye fix not present</h2>
+        <p>The installer drops the Win11 24H2 BattlEye compatibility files. If A2OA was missing at install time, this step is skipped.</p>
+        <p style="margin-top:8px">Fix: re-run <code>DayZModClassic-Client-1.0.0-Setup.exe</code> after A2OA is fully installed.</p>
+      </div>
+
+      <div class="faq-item">
+        <h2>Connect fails: Wait for host</h2>
+        <p>The server is empty and booting on first connect (the official server restarts lazily to save resources).</p>
+        <ol>
+          <li>Wait about 30 seconds.</li>
+          <li>Click PLAY again from the launcher.</li>
+          <li>If it keeps failing, check <a href="https://dayzmodclassic.com/status.json" rel="noopener">status.json</a> to confirm the server is online.</li>
+        </ol>
+      </div>
+
+      <div class="faq-item">
+        <h2>Connect fails: Player without identity</h2>
+        <p>Steam isn't running, so Arma can't load your Steam identity.</p>
+        <p style="margin-top:8px">Fix: start Steam and sign in, then click PLAY again from the launcher.</p>
+      </div>
+
+      <div class="faq-item">
+        <h2>BattlEye kicks on connect</h2>
+        <p>The installer bundles the Dwarden Win11 24H2 BE fix. If kicks persist:</p>
+        <ol>
+          <li>Verify the installer completed without errors.</li>
+          <li>Make sure Steam is running when you connect.</li>
+          <li>Try re-running the mod installer to repair the BE files.</li>
+        </ol>
+      </div>
+
+      <div class="faq-item">
+        <h2>Windows says "Windows protected your PC"</h2>
+        <p>The installer is unsigned (code-signing certs cost ~$200/yr for an indie project). To proceed:</p>
+        <ol>
+          <li>Click <strong>More info</strong> on the warning dialog.</li>
+          <li>Click <strong>Run anyway</strong>.</li>
+        </ol>
+        <p style="margin-top:8px">You can verify the file is untampered by checking the SHA-256 hash on the <a href="/downloads/">downloads page</a>.</p>
+      </div>
+
+      <div class="faq-item">
+        <h2>Game crashes on startup</h2>
+        <p>Open the Arma report log:</p>
+        <p style="margin-top:8px"><code>%LOCALAPPDATA%\ArmA 2 OA\arma2oa.RPT</code></p>
+        <p style="margin-top:8px">Paste the <strong>last 50 lines</strong> of that file into the <code>#help</code> channel on Discord. Someone will help diagnose it.</p>
+      </div>
+
+      <div class="faq-item">
+        <h2>Still stuck?</h2>
+        <ul>
+          <li>Discord: <a href="https://discord.gg/rgGpjayRMv" rel="noopener">discord.gg/rgGpjayRMv</a></li>
+          <li>GitHub issues: <a href="https://github.com/That1Drifter/dayz-mod-classic/issues" rel="noopener">github.com/That1Drifter/dayz-mod-classic/issues</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-in">
+      <div>
+        <a href="/downloads/">Downloads</a>&nbsp;&nbsp;
+        <a href="https://github.com/That1Drifter/dayz-mod-classic" rel="noopener">GitHub</a>&nbsp;&nbsp;
+        <a href="https://discord.gg/rgGpjayRMv" rel="noopener">Discord</a>
+        <div class="transmission">// end of transmission · signal degraded</div>
+      </div>
+      <div>Built &amp; maintained by <a href="https://x.com/That1Drifter">That1Drifter</a></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
