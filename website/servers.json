@@ -3,7 +3,7 @@
   "updated": "2026-05-26T14:30:00Z",
   "servers": [
     {
-      "name": "Official VPS",
+      "name": "Official Server 1 - Testing",
       "host": "85.239.231.196",
       "port": 2302,
       "description": "Official DayZ Mod Classic 1.0 server, hosted in Europe",
