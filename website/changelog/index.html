@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changelog · DayZ Mod Classic</title>
+<meta name="description" content="Patch history for the DayZ Mod 1.6 revival: what changed, what got better, and when.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700;900&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0e0f;
+    --bg-2:#121516;
+    --panel:#15181a;
+    --line:#262b2c;
+    --line-bright:#3a4042;
+    --ink:#bdbab0;
+    --ink-bright:#e6e3d8;
+    --mute:#6a6f6e;
+    --rust:#c8602a;
+    --rust-dim:#8a4520;
+    --signal:#9aae5c;
+    --blood:#7c2d22;
+    --flare:#df3322;
+    --steel:#6f8aa1;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink)}
+  body{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;line-height:1.65;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:9000;pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.22) 2px 3px);
+    mix-blend-mode:multiply;opacity:.55;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:9001;pointer-events:none;
+    background:
+      radial-gradient(120% 90% at 50% 30%,rgba(0,0,0,0) 50%,rgba(0,0,0,.55) 100%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>");
+    opacity:.45;
+  }
+  ::selection{background:var(--rust);color:#000}
+
+  a{color:inherit}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+
+  /* ---- nav ---- */
+  nav.site{
+    border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:8000;
+    background:rgba(12,14,15,.94);backdrop-filter:blur(3px);
+  }
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{
+    font-family:'Saira Condensed',sans-serif;font-weight:900;
+    font-size:21px;letter-spacing:.12em;color:var(--ink-bright);
+    text-transform:uppercase;display:flex;align-items:center;gap:10px;
+    text-decoration:none;
+  }
+  .brand .blip{width:9px;height:9px;background:var(--flare);
+    box-shadow:0 0 12px var(--flare),0 0 4px #fff;animation:flick 3.4s steps(1) infinite}
+  @keyframes flick{0%,92%,96%{opacity:1}94%,98%{opacity:.15}}
+  .nav-right{display:flex;align-items:center;gap:22px;font-size:12.5px}
+  .nav-right a{text-decoration:none;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--mute);transition:color .2s}
+  .nav-right a:hover{color:var(--rust)}
+  .nav-right a.active{color:var(--ink-bright)}
+  .status-pill{
+    display:flex;align-items:center;gap:8px;border:1px solid var(--line-bright);
+    padding:5px 11px;font-size:11px;letter-spacing:.14em;color:var(--ink);
+  }
+  .status-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--signal);
+    animation:pulse 1.6s ease-in-out infinite}
+  .status-pill.is-offline .dot{background:var(--flare);box-shadow:0 0 6px var(--flare)}
+  .status-pill.is-unknown .dot{background:var(--mute);animation-duration:2.6s}
+  @keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+
+  /* ---- page hero ---- */
+  .page-head{padding:74px 0 38px;border-bottom:1px solid var(--line);position:relative}
+  .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--rust);display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .kicker::before{content:"";width:42px;height:1px;background:var(--rust)}
+  h1{
+    font-family:'Saira Condensed',sans-serif;font-weight:900;
+    font-size:clamp(40px,6.4vw,82px);line-height:.94;
+    letter-spacing:-.005em;text-transform:uppercase;color:var(--ink-bright);
+  }
+  .lede{margin-top:18px;max-width:60ch;color:var(--ink);font-size:15px}
+  .lede .ver{color:var(--signal);font-weight:600}
+
+  /* ---- filters ---- */
+  .filters-wrap{padding:24px 0 8px;border-bottom:1px solid var(--line);
+    background:rgba(12,14,15,.7);
+    position:sticky;top:62px;z-index:7000;backdrop-filter:blur(3px);}
+  .filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .filters .label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--mute);margin-right:6px}
+  .filter-btn{
+    font-family:inherit;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+    background:transparent;color:var(--ink);
+    border:1px solid var(--line-bright);padding:7px 12px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:7px;transition:.15s;
+  }
+  .filter-btn:hover{border-color:var(--rust);color:var(--rust)}
+  .filter-btn.active{background:var(--rust);color:#0c0e0f;border-color:var(--rust)}
+  .filter-btn .count{font-size:10.5px;opacity:.7;font-weight:500}
+  .filter-btn.active .count{opacity:.85}
+  .expand-all{
+    font-family:inherit;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+    background:transparent;color:var(--mute);
+    border:1px solid var(--line);padding:7px 12px;cursor:pointer;
+    margin-left:auto;transition:.15s;
+  }
+  .expand-all:hover{border-color:var(--rust);color:var(--rust)}
+
+  /* ---- timeline ---- */
+  #timeline{padding:34px 0 80px;display:grid;gap:14px}
+
+  .entry{position:relative}
+  .entry[hidden]{display:none}
+  .entry details{
+    border:1px solid var(--line-bright);background:var(--panel);
+    position:relative;
+  }
+  .entry details::before{content:"";position:absolute;top:-1px;left:-1px;
+    width:12px;height:12px;border-top:2px solid var(--rust);border-left:2px solid var(--rust);
+    opacity:.0;transition:.2s}
+  .entry details::after{content:"";position:absolute;bottom:-1px;right:-1px;
+    width:12px;height:12px;border-bottom:2px solid var(--rust);border-right:2px solid var(--rust);
+    opacity:.0;transition:.2s}
+  .entry details[open]::before,.entry details[open]::after,
+  .entry details:hover::before,.entry details:hover::after{opacity:.85}
+
+  .entry summary{
+    list-style:none;cursor:pointer;padding:16px 20px 16px 18px;
+    display:grid;grid-template-columns:110px 150px 1fr 24px;gap:18px;align-items:start;
+    transition:background .15s;
+  }
+  .entry summary::-webkit-details-marker{display:none}
+  .entry summary:hover{background:#1a1d1f}
+  .entry summary .date{
+    font-size:11.5px;letter-spacing:.06em;color:var(--mute);padding-top:4px;
+    white-space:nowrap;
+  }
+  .entry summary .chip{
+    font-family:'Saira Condensed',sans-serif;font-weight:700;
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    padding:4px 9px;border:1px solid currentColor;align-self:start;
+    white-space:nowrap;line-height:1.2;
+  }
+  .chip-feature{color:var(--signal)}
+  .chip-fix{color:var(--rust)}
+  .chip-polish{color:var(--flare)}
+  .chip-setup{color:var(--steel)}
+  .entry summary .title{display:block}
+  .entry summary .title-main{
+    font-family:'Saira Condensed',sans-serif;font-weight:700;
+    font-size:18px;letter-spacing:.02em;color:var(--ink-bright);text-transform:none;
+    line-height:1.25;
+  }
+  .entry summary .title small{
+    display:block;margin-top:4px;font-size:13px;color:var(--mute);
+    font-family:'IBM Plex Mono',monospace;font-weight:400;
+  }
+  .entry summary .toggle{
+    font-family:'Saira Condensed',sans-serif;font-weight:900;font-size:22px;
+    color:var(--rust);text-align:right;line-height:1;padding-top:2px;
+    transition:transform .25s;
+  }
+  .entry details[open] summary .toggle{transform:rotate(45deg)}
+
+  .entry .body{
+    padding:6px 20px 22px 18px;border-top:1px dashed var(--line-bright);
+    color:var(--ink);font-size:14px;line-height:1.7;
+  }
+  .entry .body h4{
+    font-family:'Saira Condensed',sans-serif;font-weight:700;
+    font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--rust);margin:18px 0 8px;
+  }
+  .entry .body h4:first-child{margin-top:14px}
+  .entry .body p{margin:0 0 10px;max-width:74ch}
+  .entry .body p:last-child{margin-bottom:0}
+  .entry .body ul{padding-left:22px;margin:0 0 10px;max-width:74ch}
+  .entry .body li{margin:4px 0}
+  .entry .body strong{color:var(--ink-bright);font-weight:600}
+  .entry .body .callout{
+    margin-top:14px;padding:12px 14px;
+    border-left:2px solid var(--rust);background:rgba(200,96,42,.07);
+    font-size:13px;color:var(--ink);
+  }
+
+  /* footer */
+  footer{padding:46px 0 58px;border-top:1px solid var(--line)}
+  .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;
+    font-size:12px;letter-spacing:.06em;color:var(--mute)}
+  .foot-in a{color:var(--ink);text-decoration:none}
+  .foot-in a:hover{color:var(--rust)}
+  .transmission{font-size:10.5px;letter-spacing:.22em;color:var(--rust-dim);
+    text-transform:uppercase;margin-top:8px}
+
+  @media(max-width:820px){
+    .entry summary{grid-template-columns:1fr;gap:8px}
+    .entry summary .date,.entry summary .chip{padding-top:0}
+    .entry summary .toggle{display:none}
+    .nav-right .lbl-hide{display:none}
+    .filters-wrap{position:static}
+  }
+</style>
+</head>
+<body>
+
+<nav class="site">
+  <div class="wrap nav-in">
+    <a href="/" class="brand"><span class="blip"></span>DayZ&nbsp;Mod&nbsp;Classic</a>
+    <div class="nav-right">
+      <a href="/#about">About</a>
+      <a href="/#status">Status</a>
+      <a href="/changelog/" class="active">Changelog</a>
+      <a href="/downloads/">Download</a>
+      <div class="status-pill is-unknown" data-status-pill><span class="dot"></span><span data-status-label>SIGNAL&nbsp;<span class="lbl-hide">·&nbsp;CHECKING…</span></span></div>
+    </div>
+  </div>
+</nav>
+
+<header class="page-head">
+  <div class="wrap">
+    <div class="kicker">Patch history · Notes for playtesters</div>
+    <h1>What's broken,<br>what's fixed</h1>
+    <p class="lede">Notes for playtesters, not an engineering log. Latest patch:
+      <span class="ver" data-changelog-version>v8.15.1</span> (2026.05.24).</p>
+  </div>
+</header>
+
+<div class="filters-wrap">
+  <div class="wrap filters" id="filters" aria-label="Filter entries">
+    <span class="label">Filter</span>
+    <button type="button" class="filter-btn active" data-type="all">All <span class="count">0</span></button>
+    <button type="button" class="filter-btn" data-type="feature">New <span class="count">0</span></button>
+    <button type="button" class="filter-btn" data-type="fix">Fix <span class="count">0</span></button>
+    <button type="button" class="filter-btn" data-type="polish">Polish <span class="count">0</span></button>
+    <button type="button" class="filter-btn" data-type="setup">Setup <span class="count">0</span></button>
+    <button type="button" class="expand-all" id="expandAll">Expand all</button>
+  </div>
+</div>
+
+<main>
+  <section id="timeline" class="wrap">
+
+    <article class="entry" data-type="fix">
+      <details open>
+        <summary>
+          <span class="date">2026-05-24</span>
+          <span class="chip chip-fix">Fix · v8.15.1</span>
+          <span class="title">
+            <span class="title-main">Zombies actually lose interest now</span>
+            <small>The aggro decay added in v8.15 wasn't counting time properly. Now it works.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>What changed</h4>
+          <p>When you break line of sight with a zombie, it's supposed to give up after about 20 seconds of searching. v8.15 added the system, but a timing bug meant the counter never advanced. The zombies kept chasing forever.</p>
+          <h4>What to expect now</h4>
+          <ul>
+            <li>Run behind a wall, stay quiet, and chasing zombies drop aggro after roughly 20 seconds.</li>
+            <li>If you re-enter line of sight first, they reacquire normally.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="entry" data-type="fix">
+      <details open>
+        <summary>
+          <span class="date">2026-05-24</span>
+          <span class="chip chip-fix">Fix</span>
+          <span class="title">
+            <span class="title-main">Zombie behavior overhaul + log cleanup</span>
+            <small>Smarter chase logic, fewer false reacquires, cleaner server log on death and eating.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>Zombies</h4>
+          <ul>
+            <li>Once a zombie drops aggro, there's a brief grace window before it can reacquire: no more instantly re-engaging the moment you peek.</li>
+            <li>Zombies that get stuck during a chase give up faster (cut the stuck threshold roughly in half).</li>
+            <li>When line of sight is broken mid-chase, zombies now path to your last known position at reduced speed instead of teleport-rubber-banding onto you.</li>
+            <li>Aggro decay (the "lose interest" timer) fires reliably after about 20 seconds without sight.</li>
+          </ul>
+          <h4>Error spam</h4>
+          <ul>
+            <li>Fixed errors when eating that occasionally fired right after respawn.</li>
+            <li>Fixed errors thrown when the trigger that detects nearby zombies wasn't ready yet (common during the first second of spawning).</li>
+          </ul>
+          <h4>Known cosmetic issues still present</h4>
+          <ul>
+            <li>One missing bandage sound effect.</li>
+            <li>Audio device enumeration warnings on startup.</li>
+            <li>Bone/skeleton warnings for backpack and butt-pack slots: visual only.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="entry" data-type="feature">
+      <details>
+        <summary>
+          <span class="date">2026-05-23</span>
+          <span class="chip chip-feature">New · v8.15</span>
+          <span class="title">
+            <span class="title-main">Zombie aggro decay system</span>
+            <small>Zombies now remember where they last saw you, then give up.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>What changed</h4>
+          <p>Vanilla 1.6 zombies, once aggro'd, were essentially permanent: they'd home in on the player's exact position with no concept of "lost sight." Stealth was binary: undetected or doomed.</p>
+          <p>This patch adds a memory and decay system to the zombie brain:</p>
+          <ul>
+            <li><strong>Last-known position chase</strong>: when you break line of sight, zombies move toward where they last saw you, not where you actually are.</li>
+            <li><strong>Slower when blind</strong>: they walk while pathing to last-known-position instead of sprinting.</li>
+            <li><strong>Aggro decay</strong>: if line of sight stays broken for about 20 seconds, they give up and return to wander.</li>
+            <li><strong>Reacquire grace window</strong>: once they drop aggro, brief pause before they can re-engage.</li>
+          </ul>
+          <h4>What to expect now</h4>
+          <ul>
+            <li>Stealth play is viable. Run, break sight, hide; they'll wander past.</li>
+            <li>Hatchet-and-run hit-and-runs no longer trail an unshakable mob.</li>
+          </ul>
+          <div class="callout">A previous attempt (v8.13/v8.13.1) patched the wrong file: that code was never actually used by the running game. v8.14 instrumentation proved it, and v8.15 finally fixed the right place.</div>
+        </div>
+      </details>
+    </article>
+
+    <article class="entry" data-type="feature">
+      <details>
+        <summary>
+          <span class="date">2026-05-22</span>
+          <span class="chip chip-feature">New · v8.12</span>
+          <span class="title">
+            <span class="title-main">Death now sends you back to the lobby</span>
+            <small>Cleaner death flow: rejoin for a fresh life instead of in-session respawn.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>What changed</h4>
+          <p>Originally, dying triggered a complicated in-session respawn flow that often left background timers running while your character was technically dead. Result: weird flickers, leftover medical state, and the occasional ghost-state bug.</p>
+          <p>Now: death screen plays, then you're dropped back to the multiplayer lobby. Rejoin the server for a clean fresh life through the normal spawn pipeline.</p>
+          <h4>What to expect now</h4>
+          <ul>
+            <li>Death is unambiguous. No half-alive states.</li>
+            <li>Save/disconnect on death is clean: your final state writes to the database properly.</li>
+            <li>Rejoin lands you at the spawn beach with a fresh character.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="entry" data-type="fix">
+      <details>
+        <summary>
+          <span class="date">2026-05-22</span>
+          <span class="chip chip-fix">Fix · v8.9 to v8.11</span>
+          <span class="title">
+            <span class="title-main">Server error spam eliminated</span>
+            <small>Cleaned up dozens of "undefined variable" errors from the original mod's code paths.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>What changed</h4>
+          <p>The 2012 release of 1.6 shipped with many code paths that referenced variables before initializing them. Most of the time the engine tolerated this and nothing visible broke, but the server log filled with errors that made it impossible to spot real problems.</p>
+          <p>This batch of patches hunted down and guarded the worst offenders, especially around death, respawn, model switching, and the medical loops.</p>
+          <h4>What to expect now</h4>
+          <ul>
+            <li>Death and respawn cycles complete cleanly without scrolling red text.</li>
+            <li>Disconnect-during-action errors largely gone.</li>
+            <li>Server log is quiet enough that any new error actually means something.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="entry" data-type="polish">
+      <details>
+        <summary>
+          <span class="date">2026-05-22</span>
+          <span class="chip chip-polish">Polish · v8.4 to v8.8</span>
+          <span class="title">
+            <span class="title-main">Screen flash &amp; respawn medical fixes</span>
+            <small>No more lingering desaturation flashes between lives; per-life medical state resets cleanly.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>What changed</h4>
+          <p>Vanilla 1.6 had a long-standing bug where the medical system from your previous life kept running after respawn, causing periodic screen desaturation flashes and stale medical state (still "in pain", "infected", etc.) on a fresh character.</p>
+          <p>Across v8.4 through v8.8, all per-life medical state now resets on spawn, and the competing color-correction effects that caused the flash were tracked down and resolved.</p>
+          <h4>What to expect now</h4>
+          <ul>
+            <li>Fresh spawn = fresh body. No inherited "in pain" or "low blood" flags.</li>
+            <li>Hit feedback flash is visible per landed strike, not buffered into a stuttering mess.</li>
+            <li>No mysterious mid-game desaturation pulses.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="entry" data-type="fix">
+      <details>
+        <summary>
+          <span class="date">2026-05-22</span>
+          <span class="chip chip-fix">Fix · v8.2 / v8.3</span>
+          <span class="title">
+            <span class="title-main">Zombies can hit you again</span>
+            <small>Two hotfixes after the v8 refactor restored damage and clean hit registration.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>What changed</h4>
+          <p>The v8 refactor included a stricter check for "can this zombie actually see and reach the player" before letting it land a hit. The check was too strict: at melee range, the geometry test misfired and zombies were unable to damage anything.</p>
+          <p>v8.2 relaxed that check. v8.3 fixed a related issue where the engine fires a damage event multiple times per strike (once per body part hit), causing the same blow to register 3-5 times.</p>
+          <h4>What to expect now</h4>
+          <ul>
+            <li>Zombies actually hurt you when they swing.</li>
+            <li>One zombie strike = one hit, not five overlapping ones.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="entry" data-type="fix">
+      <details>
+        <summary>
+          <span class="date">2026-05-22</span>
+          <span class="chip chip-fix">Fix · v1 to v8.1</span>
+          <span class="title">
+            <span class="title-main">Foundation: every patch from playable LAN to v8 refactor</span>
+            <small>Database transport, sound indicator, hit dedup, debug toggle, medical session gates, v8 rebase.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>v1: Talking to the database again</h4>
+          <p>The original 1.6 client used a long-dead inter-process method to talk to the server-side database extension. Replaced it with the modern call interface so logins, saves, and world streaming all work.</p>
+          <h4>v2: Default values for the basics</h4>
+          <ul>
+            <li>Sunrise time defaults to 6 AM (was undefined, which broke day/night logic).</li>
+            <li>Stealth/sound indicator works again.</li>
+          </ul>
+          <h4>v3: Hit registration sanity</h4>
+          <ul>
+            <li>Half-second cooldown stops duplicate hit events from firing.</li>
+            <li>First pass at "zombies can't damage you through walls": line-of-sight required to hit.</li>
+            <li>Zombies slow to a walk when their path is blocked, mitigating the door clip-through.</li>
+          </ul>
+          <h4>v4 to v7: Medical system stabilization</h4>
+          <p>Long-running diagnosis of the respawn-flicker bug. Final fix in v7 introduced a session-ID gate so the medical loop from your dead character self-exits the moment a new life starts: instead of silently continuing in the background and fighting with the new one.</p>
+          <h4>v5: Debug toggle</h4>
+          <p>Added a master debug flag plus tagged log categories (health, eat, drink, bandage, hit) so future bugs can be isolated quickly.</p>
+          <h4>v8 / v8.1: Refactor and hotfix</h4>
+          <ul>
+            <li>Reset to a clean 1.6 baseline and re-applied all the v1 to v7 fixes in a cleaner structure.</li>
+            <li>Backported later DayZ stability patterns: smarter attack gate, duplicate-hit guarding, building loot dedup, weighted loot cache, view-distance-aware zombie spawn throttling.</li>
+            <li>v8.1 hotfix reverted one piece that accidentally used Arma 3 syntax (which doesn't work in Arma 2 OA).</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="entry" data-type="setup">
+      <details>
+        <summary>
+          <span class="date">2026-05-22</span>
+          <span class="chip chip-setup">Setup · Phase 1</span>
+          <span class="title">
+            <span class="title-main">Server is alive, character is persistent</span>
+            <small>Got the original 2012 client connecting and saving on a modern Windows box.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>What this means</h4>
+          <p>14 years of changes to Arma 2 OA, BattlEye, Windows, and the wider gaming infrastructure had broken the original 1.6 build in dozens of subtle ways. Getting from "files on disk" to "I can log in, walk around, kill a zombie, log out, log back in, and find my character" was Phase 1.</p>
+          <h4>What got fixed</h4>
+          <ul>
+            <li>Server stack stood up on Windows: dedicated Arma 2 OA server, portable MySQL database, hive extension to bridge them.</li>
+            <li>Database schema patched for legacy field widths so 1.6 records save correctly.</li>
+            <li>Client/server connection works over LAN through Steam.</li>
+            <li>Anti-cheat shimmed for Windows 11 compatibility.</li>
+            <li>Custom signing keys generated for the patched files.</li>
+            <li>Full round-trip verified: login &rarr; spawn &rarr; play &rarr; save &rarr; disconnect &rarr; reconnect &rarr; resume.</li>
+          </ul>
+          <div class="callout"><strong>First successful playtest:</strong> 2026-05-22, 10:44 AM. 16 zombie kills, 100% headshots, character survived, clean database state on disconnect.</div>
+        </div>
+      </details>
+    </article>
+
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-in">
+      <div>
+        <a href="/">&lsaquo; Overview</a> &middot; what's fixed and what's still rough.
+        <div class="transmission">// end of transmission &middot; signal degraded</div>
+      </div>
+      <div>Built &amp; maintained by <a href="https://x.com/That1Drifter">That1Drifter</a> &middot; <a href="https://discord.gg/rgGpjayRMv" rel="noopener noreferrer">Discord</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    /* ---- filter + expand ---- */
+    var filterBtns=document.querySelectorAll('.filter-btn');
+    var entries=document.querySelectorAll('.entry');
+    var expandBtn=document.getElementById('expandAll');
+
+    function countByType(type){
+      if(type==='all') return entries.length;
+      var n=0;
+      entries.forEach(function(e){ if(e.dataset.type===type) n++; });
+      return n;
+    }
+    filterBtns.forEach(function(btn){
+      var c=btn.querySelector('.count');
+      if(c) c.textContent=countByType(btn.dataset.type);
+      btn.addEventListener('click',function(){
+        filterBtns.forEach(function(b){b.classList.remove('active')});
+        btn.classList.add('active');
+        var type=btn.dataset.type;
+        entries.forEach(function(e){
+          e.hidden = type!=='all' && e.dataset.type!==type;
+        });
+      });
+    });
+    if(expandBtn){
+      var allOpen=false;
+      expandBtn.addEventListener('click',function(){
+        allOpen=!allOpen;
+        document.querySelectorAll('.entry details').forEach(function(d){ d.open=allOpen; });
+        expandBtn.textContent=allOpen?'Collapse all':'Expand all';
+      });
+    }
+
+    /* ---- status polling (shared with index) ---- */
+    var POLL_MS=30000;
+    var pill=document.querySelector('[data-status-pill]');
+    var pillLabel=document.querySelector('[data-status-label]');
+    var verEl=document.querySelector('[data-changelog-version]');
+
+    function setPill(state,label){
+      if(!pill) return;
+      pill.classList.remove('is-online','is-offline','is-unknown');
+      pill.classList.add('is-'+state);
+      if(pillLabel) pillLabel.textContent=label;
+    }
+    function apply(d){
+      if(!d){ setPill('unknown','SIGNAL · UNKNOWN'); return; }
+      var online=d.online===true;
+      var players=typeof d.players==='number'?d.players:null;
+      var max=typeof d.maxPlayers==='number'?d.maxPlayers:40;
+      if(online){
+        setPill('online','SIGNAL · ONLINE'+(players!==null?' '+players+'/'+max:''));
+      }else{
+        setPill('offline','SIGNAL · OFFLINE');
+      }
+      if(verEl && d.version) verEl.textContent=d.version;
+    }
+    function poll(){
+      fetch('/status.json',{cache:'no-store'})
+        .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+        .then(apply)
+        .catch(function(){ apply(null); });
+    }
+    poll();
+    setInterval(poll,POLL_MS);
+  })();
+</script>
+</body>
+</html>
