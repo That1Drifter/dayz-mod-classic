@@ -4,7 +4,7 @@ param(
     [int]$Port = 2302,
     [int]$QueryPort = 0,
     [string]$OutPath = 'C:\sites\dayzmodclassic.com\status.json',
-    [string]$FallbackVersion = 'v8.15.1'
+    [string]$FallbackVersion = 'v1.0.0'
 )
 
 if ($QueryPort -le 0) { $QueryPort = $Port + 1 }
