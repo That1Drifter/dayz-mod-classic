@@ -1,174 +1,398 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Download DayZ Mod Classic 1.0.0</title>
-<meta name="description" content="The original 2012 DayZ Mod, revived. Download installer for Arma 2: Operation Arrowhead.">
+<title>Download — DayZ Mod Classic 1.0.0</title>
+<meta name="description" content="Download DayZ Mod Classic 1.0.0 — the original 2012 DayZ Mod revived for modern Windows.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700;900&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #14160f;
-    --panel: #1d2017;
-    --panel-2: #262a1d;
-    --ink: #d8d6c4;
-    --ink-dim: #8a8770;
-    --rust: #a8451c;
-    --rust-hot: #c75a2a;
-    --olive: #4a5530;
-    --olive-hot: #5d6a3c;
-    --line: #2f3324;
+  :root{
+    --bg:#0c0e0f;
+    --bg-2:#121516;
+    --panel:#15181a;
+    --line:#262b2c;
+    --line-bright:#3a4042;
+    --ink:#bdbab0;
+    --ink-bright:#e6e3d8;
+    --mute:#6a6f6e;
+    --rust:#c8602a;
+    --rust-dim:#8a4520;
+    --signal:#9aae5c;
+    --flare:#df3322;
   }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font: 16px/1.55 -apple-system, "Segoe UI", sans-serif;
-    padding: 0 1rem;
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink)}
+  body{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;line-height:1.65;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
   }
-  a { color: var(--rust-hot); }
-  a:hover, a:focus { color: #ffb070; }
-  :focus { outline: 2px solid var(--rust-hot); outline-offset: 2px; }
-  main, header, footer { max-width: 880px; margin: 0 auto; }
-  header.hero {
-    padding: 3rem 0 2rem;
-    border-bottom: 1px solid var(--line);
+  body::before{
+    content:"";position:fixed;inset:0;z-index:9000;pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.22) 2px 3px);
+    mix-blend-mode:multiply;opacity:.55;
   }
-  h1 {
-    font-size: 2.4rem;
-    margin: 0 0 0.4rem;
-    letter-spacing: 0.02em;
-    color: #e8e3cc;
+  body::after{
+    content:"";position:fixed;inset:0;z-index:9001;pointer-events:none;
+    background:
+      radial-gradient(120% 90% at 50% 30%,rgba(0,0,0,0) 40%,rgba(0,0,0,.78) 100%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/></svg>");
+    opacity:.5;
   }
-  .tagline { color: var(--ink-dim); font-size: 1.1rem; margin: 0 0 1.6rem; }
-  h2 { color: #e8e3cc; margin-top: 2.4rem; border-bottom: 1px solid var(--line); padding-bottom: 0.3rem; }
-  h3 { color: #c8c2a8; margin-top: 1.6rem; }
-  .btn {
-    display: inline-block;
-    background: var(--olive);
-    color: #f1eed8;
-    text-decoration: none;
-    padding: 0.85rem 1.4rem;
-    border-radius: 3px;
-    font-weight: 600;
-    margin: 0.3rem 0.6rem 0.3rem 0;
-    border: 1px solid #6b7a44;
+  ::selection{background:var(--rust);color:#000}
+  a{color:var(--rust);text-decoration:none}
+  a:hover{color:var(--ink-bright)}
+  :focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+
+  /* nav */
+  nav{
+    border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:8000;
+    background:rgba(12,14,15,.94);backdrop-filter:blur(3px);
   }
-  .btn:hover, .btn:focus { background: var(--olive-hot); color: #fff; }
-  .btn.primary { background: var(--rust); border-color: #c25a2c; }
-  .btn.primary:hover, .btn.primary:focus { background: var(--rust-hot); color: #fff; }
-  ul, ol { padding-left: 1.4rem; }
-  li { margin: 0.3rem 0; }
-  details {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-left: 3px solid var(--rust);
-    padding: 0.8rem 1rem;
-    border-radius: 3px;
-    margin: 1rem 0;
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{
+    font-family:'Saira Condensed',sans-serif;font-weight:900;
+    font-size:21px;letter-spacing:.12em;color:var(--ink-bright);
+    text-transform:uppercase;text-decoration:none;display:flex;align-items:center;gap:10px;
   }
-  details summary { cursor: pointer; font-weight: 600; color: #e8e3cc; }
-  details[open] summary { margin-bottom: 0.6rem; }
-  code, pre {
-    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-    background: var(--panel-2);
-    border: 1px solid var(--line);
-    border-radius: 2px;
+  .brand .blip{width:9px;height:9px;background:var(--flare);
+    box-shadow:0 0 12px var(--flare),0 0 4px #fff;animation:flick 3.4s steps(1) infinite;
+    flex-shrink:0}
+  @keyframes flick{0%,92%,96%{opacity:1}94%,98%{opacity:.15}}
+  .nav-right{display:flex;align-items:center;gap:22px;font-size:12.5px}
+  .nav-right a{text-decoration:none;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--mute);transition:color .2s}
+  .nav-right a:hover,.nav-right a.active{color:var(--ink-bright)}
+  .nav-right a.active{color:var(--rust)}
+  .status-pill{
+    display:flex;align-items:center;gap:8px;border:1px solid var(--line-bright);
+    padding:5px 11px;font-size:11px;letter-spacing:.14em;color:var(--ink);
   }
-  code { padding: 0.05em 0.35em; font-size: 0.92em; }
-  pre { padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.88rem; }
-  .hashes { color: var(--ink-dim); }
-  .hosters {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    padding: 1rem 1.2rem;
-    border-radius: 3px;
-    margin-top: 1.2rem;
+  .status-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--signal);
+    animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+
+  /* page header */
+  .page-head{
+    border-bottom:1px solid var(--line);
+    padding:62px 0 52px;
   }
-  footer {
-    margin-top: 3rem;
-    padding: 1.5rem 0 2.5rem;
-    border-top: 1px solid var(--line);
-    color: var(--ink-dim);
-    font-size: 0.9rem;
+  .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--rust);display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .kicker::before{content:"";width:42px;height:1px;background:var(--rust)}
+  .page-head h1{
+    font-family:'Saira Condensed',sans-serif;font-weight:900;
+    font-size:clamp(38px,5.5vw,72px);line-height:.95;
+    letter-spacing:-.01em;text-transform:uppercase;color:var(--ink-bright);
+    margin-bottom:18px;
   }
-  footer nav a { margin-right: 1rem; }
-  @media (max-width: 600px) {
-    h1 { font-size: 1.8rem; }
-    body { padding: 0 0.8rem; }
-    header.hero { padding: 2rem 0 1.4rem; }
-    .btn { display: block; text-align: center; margin: 0.4rem 0; }
+  .page-head p{max-width:44ch;font-size:15px;color:var(--ink)}
+
+  /* download cards */
+  .dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;
+    background:var(--line);border:1px solid var(--line);margin-top:38px}
+  .dl-card{background:var(--bg-2);padding:0;position:relative}
+  .dl-card::before{content:"";position:absolute;top:-1px;left:-1px;
+    width:14px;height:14px;border-top:2px solid var(--rust);border-left:2px solid var(--rust)}
+  .dl-card::after{content:"";position:absolute;bottom:-1px;right:-1px;
+    width:14px;height:14px;border-bottom:2px solid var(--rust);border-right:2px solid var(--rust)}
+  .dl-head{padding:11px 18px;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+  .dl-head .badge{color:var(--signal);border:1px solid var(--signal);padding:2px 7px;font-size:10px}
+  .dl-body{padding:20px 18px 22px}
+  .dl-body h2{
+    font-family:'Saira Condensed',sans-serif;font-weight:900;font-size:26px;
+    text-transform:uppercase;color:var(--ink-bright);margin-bottom:6px}
+  .dl-body p{font-size:13px;color:var(--mute);max-width:32ch;margin-bottom:18px;line-height:1.5}
+  .dl-btn{
+    display:block;text-align:center;text-decoration:none;
+    background:var(--rust);color:#0c0e0f;
+    font-family:'Saira Condensed',sans-serif;font-weight:900;
+    font-size:17px;letter-spacing:.1em;text-transform:uppercase;
+    padding:12px;transition:.15s;border:1px solid var(--rust);
+  }
+  .dl-btn:hover{background:#0c0e0f;color:var(--rust);box-shadow:inset 0 0 0 1px var(--rust)}
+  .dl-btn.secondary{background:transparent;color:var(--ink);border-color:var(--line-bright)}
+  .dl-btn.secondary:hover{border-color:var(--rust);color:var(--rust);background:transparent;box-shadow:none}
+  .dl-meta{margin-top:14px;font-size:11px;letter-spacing:.06em;color:var(--mute)}
+
+  /* sections */
+  section{border-bottom:1px solid var(--line);padding:62px 0}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:32px}
+  .sec-no{font-size:12px;color:var(--rust);letter-spacing:.1em;border:1px solid var(--rust-dim);padding:3px 9px}
+  .sec-title{
+    font-family:'Saira Condensed',sans-serif;font-weight:900;
+    font-size:clamp(26px,3.8vw,42px);text-transform:uppercase;letter-spacing:-.005em;
+    color:var(--ink-bright);line-height:1}
+
+  /* requirements checklist */
+  .checklist{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+  .check{background:var(--bg-2);padding:14px 20px;display:grid;
+    grid-template-columns:auto 1fr;gap:16px;align-items:start;transition:background .15s}
+  .check:hover{background:#181c1d}
+  .tick{font-family:'Saira Condensed',sans-serif;font-weight:900;color:var(--signal);
+    font-size:13px;border:1px solid var(--signal);width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;margin-top:1px;flex-shrink:0}
+  .tick.req{color:var(--rust);border-color:var(--rust)}
+  .check h3{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:17px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--ink-bright)}
+  .check p{font-size:13px;color:var(--mute);margin-top:2px}
+  .check a{color:var(--rust)}
+  .check a:hover{color:var(--ink-bright)}
+
+  /* install steps */
+  .steps{display:grid;gap:0;position:relative}
+  .step{display:grid;grid-template-columns:52px 1fr;gap:20px;
+    padding:20px 0;border-top:1px dashed var(--line-bright)}
+  .step:first-child{border-top:0}
+  .step-n{font-family:'Saira Condensed',sans-serif;font-weight:900;font-size:28px;
+    color:var(--rust-dim);line-height:1;padding-top:2px}
+  .step h3{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;
+    text-transform:uppercase;color:var(--ink-bright)}
+  .step p{font-size:14px;color:var(--ink);margin-top:4px;max-width:54ch}
+  .step code{
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;
+    background:var(--panel);border:1px solid var(--line);padding:1px 6px;color:var(--ink-bright)}
+
+  /* SmartScreen notice */
+  .notice{
+    border:1px solid var(--line-bright);background:var(--panel);
+    padding:16px 18px;margin-top:22px;position:relative;
+  }
+  .notice::before{content:"";position:absolute;top:-1px;left:-1px;
+    width:12px;height:12px;border-top:2px solid var(--rust-dim);border-left:2px solid var(--rust-dim)}
+  .notice-label{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--rust-dim);margin-bottom:8px}
+  .notice p{font-size:13px;color:var(--mute);line-height:1.6}
+  .notice ol{padding-left:1.2em;font-size:13px;color:var(--mute);margin-top:6px}
+  .notice ol li{margin:3px 0}
+
+  /* hash block */
+  .hash-block{
+    background:var(--panel);border:1px solid var(--line);
+    padding:16px 18px;font-size:13px;overflow-x:auto;
+    color:var(--mute);letter-spacing:.02em;
+  }
+  .hash-block span{color:var(--ink-bright)}
+
+  /* hosting card */
+  .host-card{
+    border:1px solid var(--line-bright);background:var(--panel);
+    position:relative;margin-top:12px;
+  }
+  .host-card::before{content:"";position:absolute;top:-1px;left:-1px;
+    width:14px;height:14px;border-top:2px solid var(--rust);border-left:2px solid var(--rust)}
+  .host-card::after{content:"";position:absolute;bottom:-1px;right:-1px;
+    width:14px;height:14px;border-bottom:2px solid var(--rust);border-right:2px solid var(--rust)}
+  .host-head{padding:10px 16px;border-bottom:1px solid var(--line);
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+  .host-body{padding:18px 16px 20px}
+  .host-body p{font-size:14px;color:var(--ink);max-width:58ch;line-height:1.65}
+  .host-body p+p{margin-top:12px}
+  .host-body code{
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;
+    background:var(--bg-2);border:1px solid var(--line);padding:1px 6px;color:var(--ink-bright)}
+
+  /* footer */
+  footer{padding:46px 0 58px}
+  .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;
+    font-size:12px;letter-spacing:.06em;color:var(--mute)}
+  .foot-in a{color:var(--ink);text-decoration:none}
+  .foot-in a:hover{color:var(--rust)}
+  .transmission{font-size:10.5px;letter-spacing:.22em;color:var(--rust-dim);
+    text-transform:uppercase;margin-top:8px}
+
+  @media(max-width:760px){
+    .dl-grid{grid-template-columns:1fr}
+    .step{grid-template-columns:36px 1fr}
+    .step-n{font-size:22px}
+  }
+  @media(max-width:500px){
+    .wrap{padding:0 16px}
   }
 </style>
 </head>
 <body>
-<header class="hero">
-  <h1>DayZ Mod Classic 1.0.0</h1>
-  <p class="tagline">The original 2012 DayZ Mod, revived.</p>
-  <a class="btn primary" href="/downloads/DayZModClassic-Client-1.0.0-Setup.exe">Download for Players</a>
-  <a class="btn" href="/downloads/DayZModClassic-Server-1.0.0.zip">Download Server Bundle (for hosts)</a>
-</header>
+
+<nav>
+  <div class="wrap nav-in">
+    <a class="brand" href="/"><span class="blip"></span>DayZ&nbsp;Mod&nbsp;Classic</a>
+    <div class="nav-right">
+      <a href="/#about">About</a>
+      <a href="/#status">Status</a>
+      <a href="/downloads/CHANGELOG.md">Changelog</a>
+      <a href="/downloads/" class="active">Download</a>
+      <div class="status-pill"><span class="dot"></span>SIGNAL&nbsp;<span>·&nbsp;v1.0.0</span></div>
+    </div>
+  </div>
+</nav>
+
+<div class="page-head">
+  <div class="wrap">
+    <div class="kicker">DayZ Mod 1.6 · Public Release · Windows 10/11</div>
+    <h1>Get the<br>mod</h1>
+    <p>One installer. Handles BattlEye, mod files, and the launcher. Arma 2 OA required separately via Steam.</p>
+
+    <div class="dl-grid">
+      <div class="dl-card">
+        <div class="dl-head"><span>// Client installer</span><span class="badge">PLAYERS</span></div>
+        <div class="dl-body">
+          <h2>Player installer</h2>
+          <p>Installs the mod, BattlEye fix, and launcher. Run it, click through, play.</p>
+          <a class="dl-btn" href="/downloads/DayZModClassic-Client-1.0.0-Setup.exe">Download for Players ▸</a>
+          <div class="dl-meta">DayZModClassic-Client-1.0.0-Setup.exe · 195 MB</div>
+        </div>
+      </div>
+      <div class="dl-card">
+        <div class="dl-head"><span>// Server bundle</span><span class="badge" style="color:var(--mute);border-color:var(--mute)">HOSTERS</span></div>
+        <div class="dl-body">
+          <h2>Server bundle</h2>
+          <p>Everything to run a public or private server: MySQL, HiveEXT, mission, configs, installer script.</p>
+          <a class="dl-btn secondary" href="/downloads/DayZModClassic-Server-1.0.0.zip">Download Server Bundle ▸</a>
+          <div class="dl-meta">DayZModClassic-Server-1.0.0.zip · 175 MB</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <main>
   <section id="requirements">
-    <h2>System requirements</h2>
-    <ul>
-      <li>Windows 10 / 11 (64-bit)</li>
-      <li>Steam account</li>
-      <li>Arma 2 + Arma 2: Operation Arrowhead, purchased on Steam (<a href="https://store.steampowered.com/app/33930/" rel="noopener">store page</a>)</li>
-      <li>~5 GB free disk space</li>
-    </ul>
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-no">01</span><h2 class="sec-title">Requirements</h2></div>
+      <div class="checklist">
+        <div class="check">
+          <div class="tick req">!</div>
+          <div><h3>Windows 10 or 11 (64-bit)</h3>
+            <p>Win11 24H2 supported — BattlEye fix is bundled in the installer.</p></div>
+        </div>
+        <div class="check">
+          <div class="tick req">!</div>
+          <div><h3>Steam account</h3>
+            <p>Required for Arma 2 OA identity — the server uses Steam auth.</p></div>
+        </div>
+        <div class="check">
+          <div class="tick req">!</div>
+          <div><h3>Arma 2 + Arma 2: Operation Arrowhead (Steam)</h3>
+            <p>Both titles required — <a href="https://store.steampowered.com/app/33930/" rel="noopener">A2OA on Steam</a>. Often on sale bundled as Combined Operations.</p></div>
+        </div>
+        <div class="check">
+          <div class="tick req">!</div>
+          <div><h3>~5 GB free disk space</h3>
+            <p>For Arma 2 OA + mod files.</p></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section id="install">
-    <h2>How to install</h2>
-    <ol>
-      <li>Buy and install Arma 2 and Arma 2: Operation Arrowhead via Steam.</li>
-      <li>Download and run <code>DayZModClassic-Client-1.0.0-Setup.exe</code>.</li>
-      <li>Click through the installer. It handles BattlEye fixes and mod files for you.</li>
-      <li>Open "DayZ Mod Classic" from the Start Menu and click PLAY.</li>
-    </ol>
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-no">02</span><h2 class="sec-title">How to install</h2></div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">01</div>
+          <div><h3>Buy both Arma titles on Steam</h3>
+            <p>You need Arma 2 and Arma 2: Operation Arrowhead. Install both through Steam before running the mod installer.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-n">02</div>
+          <div><h3>Run the installer</h3>
+            <p>Download and run <code>DayZModClassic-Client-1.0.0-Setup.exe</code>. It detects your Steam library, drops the mod files, applies the BattlEye Win11 fix, and installs the launcher.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-n">03</div>
+          <div><h3>Launch and connect</h3>
+            <p>Open "DayZ Mod Classic" from the Start Menu. Select a server and click PLAY. Steam must be running.</p></div>
+        </div>
+      </div>
 
-    <details>
-      <summary>Windows says "Windows protected your PC", what do I do?</summary>
-      <p>This is normal for indie software without an expensive code-signing certificate. To proceed:</p>
-      <ol>
-        <li>Click "More info" on the warning dialog.</li>
-        <li>Click "Run anyway".</li>
-      </ol>
-      <p>The installer is safe. You can verify the SHA-256 hash listed below matches the file you downloaded.</p>
-    </details>
+      <div class="notice">
+        <div class="notice-label">// Windows SmartScreen warning</div>
+        <p>The installer is unsigned (code-signing certs run ~$200/yr). Windows will show "Windows protected your PC" on first run.</p>
+        <ol>
+          <li>Click <strong>More info</strong> on the warning.</li>
+          <li>Click <strong>Run anyway</strong>.</li>
+        </ol>
+        <p style="margin-top:6px">Verify the SHA-256 hash below matches if you want to confirm the file is untampered.</p>
+      </div>
+    </div>
   </section>
 
   <section id="hashes">
-    <h2>File hashes</h2>
-    <pre class="hashes">DayZModClassic-Client-1.0.0-Setup.exe  SHA-256: 8033C756948FC941D51C40EB0B5C7B35A969B7F21AF189FF95FE99FF702A8482
-DayZModClassic-Server-1.0.0.zip        SHA-256: 90E34135DBE7D1F1E4B3A6555A0CF909B579E259EF5DBE8AE38D3DC69332DF5F</pre>
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-no">03</span><h2 class="sec-title">File hashes</h2></div>
+      <div class="hash-block">
+        <div><span>DayZModClassic-Client-1.0.0-Setup.exe</span></div>
+        <div style="margin-left:2ch;margin-bottom:12px">SHA-256: 8033C756948FC941D51C40EB0B5C7B35A969B7F21AF189FF95FE99FF702A8482</div>
+        <div><span>DayZModClassic-Server-1.0.0.zip</span></div>
+        <div style="margin-left:2ch">SHA-256: 90E34135DBE7D1F1E4B3A6555A0CF909B579E259EF5DBE8AE38D3DC69332DF5F</div>
+      </div>
+    </div>
   </section>
 
   <section id="troubleshooting">
-    <h2>Help and troubleshooting</h2>
-    <p>See the <a href="/downloads/install-troubleshooting.html">install troubleshooting guide</a> if the installer or launcher does not work on first try.</p>
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-no">04</span><h2 class="sec-title">Troubleshooting</h2></div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n" style="color:var(--mute)">▸</div>
+          <div><h3>Installer crashes or won't run</h3>
+            <p>Right-click the .exe and choose "Run as administrator". If SmartScreen blocks it, click More info then Run anyway.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-n" style="color:var(--mute)">▸</div>
+          <div><h3>Launcher says "Missing addons"</h3>
+            <p>Arma 2 is not installed or Steam returned a bad path. Make sure both Arma 2 and A2OA are fully installed via Steam, then re-run the mod installer.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-n" style="color:var(--mute)">▸</div>
+          <div><h3>BattlEye kicks on connect</h3>
+            <p>The installer bundles the Dwarden Win11 24H2 BE fix. If kicks persist, verify the installer completed without errors and Steam is running when you connect.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-n" style="color:var(--mute)">▸</div>
+          <div><h3>Still stuck?</h3>
+            <p>See the full <a href="/downloads/install-troubleshooting.html">troubleshooting guide</a> or ask in <a href="https://discord.gg/rgGpjayRMv" rel="noopener">Discord</a>.</p></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section id="hosters">
-    <h2>Server hosters</h2>
-    <div class="hosters">
-      <p>Want to run your own server? Download the <a href="/downloads/DayZModClassic-Server-1.0.0.zip">Server Bundle</a>. It includes everything: A2OA dedicated server, MySQL, mission, configs, and an <code>INSTALL_SERVER.ps1</code> script that handles firewall and service registration on Windows Server 2016+.</p>
-      <p>See the <a href="/downloads/host-your-own.html">hosting guide</a> for full setup steps. Reach out via <a href="https://discord.gg/rgGpjayRMv" rel="noopener">Discord</a> to get your server listed in the launcher.</p>
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-no">05</span><h2 class="sec-title">Run your own server</h2></div>
+      <div class="host-card">
+        <div class="host-head">// Server bundle · Windows Server 2016+</div>
+        <div class="host-body">
+          <p>The server bundle includes portable MySQL 5.5, HiveEXT 0.9.6.14, the mission, server configs, and <code>INSTALL_SERVER.ps1</code> — a script that handles firewall rules, MySQL service registration, and dep installs on a fresh Windows Server box.</p>
+          <p>See the <a href="/downloads/host-your-own.html">hosting guide</a> for full steps. To get your server listed in the launcher, post in <a href="https://discord.gg/rgGpjayRMv" rel="noopener">Discord</a> with your public IP and port.</p>
+        </div>
+      </div>
     </div>
   </section>
 </main>
 
 <footer>
-  <nav>
-    <a href="https://github.com/That1Drifter/dayz-mod-classic" rel="noopener">GitHub</a>
-    <a href="https://discord.gg/rgGpjayRMv" rel="noopener">Discord</a>
-    <a href="/servers.json">Server list</a>
-    <a href="/version.json">Version manifest</a>
-    <a href="/downloads/CHANGELOG.md">Changelog</a>
-  </nav>
-  <p>&copy; 2026 DayZ Mod Classic. Original DayZ Mod &copy; Dean "Rocket" Hall and community.</p>
+  <div class="wrap">
+    <div class="foot-in">
+      <div>
+        <a href="https://github.com/That1Drifter/dayz-mod-classic" rel="noopener">GitHub</a>&nbsp;&nbsp;
+        <a href="https://discord.gg/rgGpjayRMv" rel="noopener">Discord</a>&nbsp;&nbsp;
+        <a href="/downloads/CHANGELOG.md">Changelog</a>&nbsp;&nbsp;
+        <a href="/servers.json">servers.json</a>
+        <div class="transmission">// end of transmission · signal degraded</div>
+      </div>
+      <div>Built &amp; maintained by <a href="https://x.com/That1Drifter">That1Drifter</a></div>
+    </div>
+  </div>
 </footer>
+
 </body>
 </html>
