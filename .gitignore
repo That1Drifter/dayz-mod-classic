@@ -43,3 +43,12 @@ server/cfgdayz/HiveExt.log
 
 # Reference material pulled from sibling repos (local only)
 info/
+
+# Admin panel: secrets + runtime data (never commit)
+admin/**/appsettings.Production.json
+admin/**/appsettings.local.json
+admin/**/backups/
+admin/**/publish/
+
+# Extracted Bohemia game assets (map images) — do NOT redistribute in a public repo
+admin/**/wwwroot/assets/chernarus-*.jpg

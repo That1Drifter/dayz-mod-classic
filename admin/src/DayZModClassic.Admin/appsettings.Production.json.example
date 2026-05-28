@@ -1,0 +1,23 @@
+{
+  "_comment": "Copy to appsettings.Production.json (gitignored) on the VPS and fill in secrets. Or supply via env vars: Admin__Rcon__Password, Admin__Hive__ConnectionString, Admin__Auth__Password.",
+  "Admin": {
+    "Rcon": {
+      "Host": "127.0.0.1",
+      "Port": 2302,
+      "Password": "YOUR_RCON_PASSWORD_ALPHANUMERIC"
+    },
+    "Hive": {
+      "ConnectionString": "Server=127.0.0.1;Port=3316;Database=hivemind;Uid=root;Pwd=root;AllowUserVariables=true;DefaultCommandTimeout=30;",
+      "InstanceId": 222
+    },
+    "Paths": {
+      "Rpt": "C:\\arma2oa\\cfgdayz\\arma2oaserver.RPT",
+      "BeBans": "C:\\arma2oa\\BattlEye\\bans.txt",
+      "Backups": "C:\\admin-panel\\backups"
+    },
+    "Auth": {
+      "Username": "admin",
+      "Password": "SET_A_STRONG_PASSWORD"
+    }
+  }
+}

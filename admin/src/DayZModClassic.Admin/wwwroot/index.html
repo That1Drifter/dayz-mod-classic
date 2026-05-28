@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DayZ Mod Classic - Admin</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>DayZ Mod Classic <span class="sub">Admin</span></h1>
+    <div id="statusbar" class="statusbar">
+      <span id="st-rcon" class="pill">RCon -</span>
+      <span id="st-hive" class="pill">Hive -</span>
+      <span id="st-players" class="pill">Players -</span>
+      <span id="st-restart" class="pill hidden">Restart -</span>
+    </div>
+  </header>
+
+  <nav id="tabs">
+    <button data-tab="dashboard" class="active">Dashboard</button>
+    <button data-tab="players">Players</button>
+    <button data-tab="bans">Bans</button>
+    <button data-tab="server">Server</button>
+    <button data-tab="map">Map</button>
+    <button data-tab="database">Database</button>
+    <button data-tab="logs">Logs</button>
+  </nav>
+
+  <main>
+    <section id="tab-dashboard" class="tab active">
+      <div class="cards">
+        <div class="card"><h3>RCon</h3><div id="dash-rcon" class="big">-</div></div>
+        <div class="card"><h3>Players online</h3><div id="dash-players" class="big">-</div></div>
+        <div class="card"><h3>Hive</h3><div id="dash-hive" class="big">-</div></div>
+      </div>
+      <h3>Recent chat / events</h3>
+      <pre id="dash-chat" class="log"></pre>
+    </section>
+
+    <section id="tab-players" class="tab">
+      <div class="toolbar">
+        <button id="players-refresh">Refresh</button>
+        <span id="players-count" class="muted"></span>
+      </div>
+      <table id="players-table">
+        <thead><tr><th>#</th><th>Name</th><th>Ping</th><th>GUID</th><th>Verified</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="tab-bans" class="tab">
+      <div class="toolbar">
+        <button id="bans-refresh">Refresh</button>
+        <input id="ban-guid" placeholder="GUID" size="34" />
+        <input id="ban-mins" type="number" value="0" title="minutes (0 = permanent)" style="width:90px" />
+        <input id="ban-reason" placeholder="reason" />
+        <button id="ban-add">Add ban</button>
+      </div>
+      <table id="bans-table">
+        <thead><tr><th>#</th><th>Type</th><th>Target</th><th>Mins left</th><th>Reason</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="tab-server" class="tab">
+      <h3>Broadcast</h3>
+      <div class="toolbar">
+        <input id="say-msg" placeholder="message to all players" style="flex:1" />
+        <button id="say-send">Say</button>
+      </div>
+      <h3>Control</h3>
+      <div class="toolbar">
+        <button id="srv-lock">Lock</button>
+        <button id="srv-unlock">Unlock</button>
+        <button id="srv-restart" class="warn">#restart mission</button>
+        <button id="srv-shutdown" class="danger">#shutdown</button>
+      </div>
+      <h3>Scheduled restart</h3>
+      <div class="toolbar">
+        <input id="sched-mins" type="number" value="30" style="width:90px" /> minutes
+        <button id="sched-arm">Arm</button>
+        <button id="sched-cancel">Cancel</button>
+        <span id="sched-status" class="muted"></span>
+      </div>
+      <h3>Raw RCon command</h3>
+      <div class="toolbar">
+        <input id="raw-cmd" placeholder="e.g. players" style="flex:1" />
+        <button id="raw-send">Send</button>
+      </div>
+      <pre id="raw-out" class="log"></pre>
+    </section>
+
+    <section id="tab-map" class="tab">
+      <div class="toolbar">
+        <button id="map-refresh">Refresh</button>
+        <select id="map-bg">
+          <option value="sat">Satellite</option>
+          <option value="topo">Topographic</option>
+          <option value="grid">Grid</option>
+        </select>
+        <label><input type="checkbox" id="map-show-vehicles" checked /> vehicles</label>
+        <label><input type="checkbox" id="map-show-dead" /> dead</label>
+        <span id="map-status" class="muted"></span>
+      </div>
+      <div id="map-wrap"><canvas id="map-canvas" width="900" height="900"></canvas></div>
+      <div id="map-tooltip" class="tooltip hidden"></div>
+    </section>
+
+    <section id="tab-database" class="tab">
+      <div class="subtabs">
+        <button data-db="characters" class="active">Characters</button>
+        <button data-db="objects">Objects / Vehicles</button>
+      </div>
+
+      <div id="db-characters" class="db-pane active">
+        <div class="toolbar">
+          <button id="char-refresh">Refresh</button>
+          <input id="char-search" placeholder="name or UID" />
+          <label><input type="checkbox" id="char-alive" /> alive only</label>
+        </div>
+        <table id="char-table">
+          <thead><tr><th>ID</th><th>Name</th><th>UID</th><th>Alive</th><th>Humanity</th><th>Pos</th><th>Last login</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div id="db-objects" class="db-pane">
+        <div class="toolbar">
+          <button id="obj-refresh">Refresh</button>
+          <input id="obj-filter" placeholder="classname filter" />
+        </div>
+        <table id="obj-table">
+          <thead><tr><th>ID</th><th>Classname</th><th>Damage</th><th>Fuel</th><th>Pos</th><th>Owner</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="tab-logs" class="tab">
+      <div class="toolbar">
+        <button id="logs-refresh">Refresh</button>
+        <label><input type="checkbox" id="logs-auto" checked /> auto</label>
+        <input id="logs-filter" placeholder="filter" />
+        <input id="logs-lines" type="number" value="300" style="width:90px" /> lines
+      </div>
+      <pre id="logs-out" class="log"></pre>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-box">
+      <h3 id="modal-title">Edit</h3>
+      <div id="modal-body"></div>
+      <div class="modal-actions">
+        <button id="modal-save">Save</button>
+        <button id="modal-cancel" class="ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="map.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
