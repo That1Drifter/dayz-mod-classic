@@ -125,7 +125,8 @@ public sealed class RptTailService : BackgroundService
         double.TryParse(f[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var x);
         double.TryParse(f[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var y);
         bool alive = f[3] is "1" or "true" or "True";
-        var name = f.Length >= 5 ? f[4].Trim() : f[0];
+        // name is the remainder; SQF logs it wrapped in quotes, so strip them.
+        var name = (f.Length >= 5 ? f[4] : f[0]).Trim().Trim('"');
         _build.Add(new PlayerPos(name, f[0], x, y, alive));
 
         if (_build.Count >= _buildExpected) Publish();
