@@ -6,6 +6,8 @@ const DayzMap = (() => {
   let markers = []; // {cx, cy, label, sub}
   let last = { players: [], vehicles: [] };
   let opts = { vehicles: true, dead: false };
+  let bg = null;        // background Image (satellite/topo) or null for grid-only
+  let bgType = 'grid';
 
   function init(canvasEl, tooltipEl) {
     canvas = canvasEl;
@@ -16,6 +18,17 @@ const DayzMap = (() => {
   }
 
   function setOptions(o) { opts = { ...opts, ...o }; draw(); }
+
+  // type: 'sat' | 'topo' | 'grid'. Loads assets/chernarus-<type>.jpg; on a
+  // missing image (e.g. topo not added yet) it silently falls back to the grid.
+  function setBackground(type) {
+    bgType = type;
+    if (type === 'grid') { bg = null; draw(); return; }
+    const img = new Image();
+    img.onload = () => { if (bgType === type) { bg = img; draw(); } };
+    img.onerror = () => { if (bgType === type) { bg = null; draw(); } };
+    img.src = 'assets/chernarus-' + type + '.jpg';
+  }
 
   function update(data) {
     world = data.worldSize || 15360;
@@ -36,9 +49,12 @@ const DayzMap = (() => {
     ctx.fillStyle = '#10141a';
     ctx.fillRect(0, 0, W, H);
 
-    // grid every ~2.56 km
-    ctx.strokeStyle = '#1e2630';
-    ctx.fillStyle = '#3a4654';
+    // terrain background (north-up, west-left; fills the full 0..world extent)
+    if (bg && bg.complete && bg.naturalWidth > 0) ctx.drawImage(bg, 0, 0, W, H);
+
+    // grid every ~2.56 km (fainter over a terrain image)
+    ctx.strokeStyle = bg ? 'rgba(255,255,255,0.12)' : '#1e2630';
+    ctx.fillStyle = bg ? 'rgba(255,255,255,0.5)' : '#3a4654';
     ctx.font = '10px monospace';
     const step = 2560;
     for (let g = 0; g <= world; g += step) {
@@ -96,5 +112,5 @@ const DayzMap = (() => {
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  return { init, update, setOptions };
+  return { init, update, setOptions, setBackground };
 })();

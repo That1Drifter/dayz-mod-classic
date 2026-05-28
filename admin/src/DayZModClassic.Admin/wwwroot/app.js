@@ -183,6 +183,8 @@ $('#raw-send').addEventListener('click', () => run(async () => {
 
 // ---------- map ----------
 DayzMap.init($('#map-canvas'), $('#map-tooltip'));
+DayzMap.setBackground('sat');
+$('#map-bg').addEventListener('change', e => DayzMap.setBackground(e.target.value));
 async function loadMap() {
   run(async () => {
     const data = await api('/api/map');

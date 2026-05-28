@@ -49,3 +49,6 @@ admin/**/appsettings.Production.json
 admin/**/appsettings.local.json
 admin/**/backups/
 admin/**/publish/
+
+# Extracted Bohemia game assets (map images) — do NOT redistribute in a public repo
+admin/**/wwwroot/assets/chernarus-*.jpg
