@@ -40,7 +40,7 @@ did (firewall rule, MySQL service, scheduled task) so you can troubleshoot.
 
 ### Critical files
 
-- `@dayzmodclassic\AddOns\*.pbo` - mod PBOs (7 files + 7 bisigns; dayz_code signed with `that1drifter.bikey`, rest with `dayz.bikey`)
+- `@dayzmodclassic\AddOns\*.pbo` - mod PBOs (7 files + 7 bisigns; all signed with `that1drifter.bikey`)
 - `@hive\HiveEXT.dll` - DB bridge
 - `Keys\dayz.bikey` + `Keys\that1drifter.bikey` - sig verification keys
 - `cfgdayz\server.cfg` - Arma server config (BE=1, sigs=2, hostname "DayZ Mod Classic 1.0 [Official]")
@@ -52,7 +52,7 @@ did (firewall rule, MySQL service, scheduled task) so you can troubleshoot.
 
 1. GameSpy dead since 2014. `reportingIP=""`. Launcher does discovery, not master server.
 2. Modern Arma 2 OA build (131129). `requiredBuild=0` accepts any.
-3. `dayz_code.pbo` re-signed with `that1drifter.bikey` (post-patch). Other 6 PBOs still use `dayz.bikey`. Both keys in `Keys/`.
+3. All 7 PBOs signed with `that1drifter.bikey` (v4 rebuild fixed stale `dayz.bisign` files that broke `verifySignatures=2`). `dayz.bikey` still ships for compatibility but unused for verification.
 4. Win11 24H2 BE - if running on Win11 24H2, Dwarden BE fix must be applied to A2OA root.
 5. MySQL `my.ini` paths fixed to relative `./` (verified booting from `MySQL\bin\mysqld.exe` with CWD=`MySQL\`).
 

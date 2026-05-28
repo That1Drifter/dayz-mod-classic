@@ -24,7 +24,7 @@ cd D:\arma2dayzmod\releases\1.0.0\installer
 & "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" DayZModClassic.iss
 ```
 
-Output: `Output\DayZModClassic-Client-1.0.0-Setup-v3.exe` (~200 MB).
+Output: `Output\DayZModClassic-Client-1.0.0-Setup-v5.exe` (~200 MB).
 
 ## What the installer does
 
@@ -42,7 +42,7 @@ Output: `Output\DayZModClassic-Client-1.0.0-Setup-v3.exe` (~200 MB).
 
 ## After build
 
-- Compute SHA-256: `Get-FileHash Output\DayZModClassic-Client-1.0.0-Setup-v3.exe -Algorithm SHA256`
+- Compute SHA-256: `Get-FileHash Output\DayZModClassic-Client-1.0.0-Setup-v5.exe -Algorithm SHA256`
 - Update `..\website\downloads\index.html` with the hash
 - Upload to dayzmodclassic.com/downloads/
 

@@ -4,7 +4,7 @@
 ; Build:
 ;   iscc.exe DayZModClassic.iss
 ; Output:
-;   Output\DayZModClassic-Client-1.0.0-Setup-v3.exe
+;   Output\DayZModClassic-Client-1.0.0-Setup-v5.exe
 ;
 ; Prerequisites before compiling:
 ;   1. Build launcher: cd ..\launcher\src\DayZModClassic.Launcher
@@ -16,7 +16,7 @@
 
 #define MyAppName "DayZ Mod Classic"
 #define MyAppVersion "1.0.0"
-#define MyBuildTag "v3"
+#define MyBuildTag "v5"
 #define MyAppPublisher "DayZ Mod Classic"
 #define MyAppURL "https://dayzmodclassic.com"
 #define MyAppExeName "DayZModClassic.exe"

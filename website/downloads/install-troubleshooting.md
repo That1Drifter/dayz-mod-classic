@@ -9,7 +9,7 @@ The installer looks for Arma 2: Operation Arrowhead in your Steam library. If it
 1. Install Steam if you haven't already.
 2. Buy and install both **Arma 2** and **Arma 2: Operation Arrowhead** on Steam.
 3. Launch Arma 2: Operation Arrowhead once from Steam to confirm it works.
-4. Re-run `DayZModClassic-Client-1.0.0-Setup-v3.exe`.
+4. Re-run `DayZModClassic-Client-1.0.0-Setup-v5.exe`.
 
 If you believe A2OA is installed and the installer still fails to detect it, share the diagnostic file the installer writes to `%TEMP%\DayZModClassic-install-diag.txt`. Paste it into Discord and we will help.
 
@@ -17,7 +17,7 @@ If you believe A2OA is installed and the installer still fails to detect it, sha
 
 The installer attempts to drop in the Win11 24H2 BattlEye compatibility files. If A2OA was missing at install time, this step is skipped.
 
-Fix: re-run `DayZModClassic-Client-1.0.0-Setup-v3.exe` after A2OA is fully installed. You can run the installer on top of an existing install; it will repair missing files.
+Fix: re-run `DayZModClassic-Client-1.0.0-Setup-v5.exe` after A2OA is fully installed. You can run the installer on top of an existing install; it will repair missing files.
 
 ## "Connect fails: Wait for host"
 

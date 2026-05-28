@@ -57,7 +57,7 @@ dotnet publish -c Release -r win-x64 --self-contained true
 # 2. Client installer
 cd D:\arma2dayzmod\releases\1.0.0\installer
 & "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" DayZModClassic.iss
-# -> Output\DayZModClassic-Client-1.0.0-Setup-v3.exe (~200 MB)
+# -> Output\DayZModClassic-Client-1.0.0-Setup-v5.exe (~200 MB)
 
 # 3. Server bundle (already done in this build)
 # D:\arma2dayzmod\releases\1.0.0\DayZModClassic-Server-1.0.0.zip
