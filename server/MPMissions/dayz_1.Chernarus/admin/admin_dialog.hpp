@@ -117,7 +117,7 @@ class DZAdminMenu
     objects[] = {};
     controls[] = {
         DZTitle, DZHint,
-        DZPlayerList, DZClassEdit,
+        DZPlayerList, DZVehicleList, DZClassEdit,
         DZ_TpMap, DZ_HealSelf, DZ_God, DZ_FullAmmo, DZ_RepairVeh, DZ_ClearWx,
         DZ_TpTo, DZ_Bring, DZ_HealSel, DZ_SpawnVeh,
         DZ_Close
@@ -143,18 +143,23 @@ class DZAdminMenu
         x = 0.31; y = 0.235; w = 0.38; h = 0.03;
         sizeEx = 0.022;
         colorText[] = {0.7,0.7,0.7,1};
-        text = "Select a player for targeted actions. Type a classname to spawn.";
+        text = "Top list: players (targeted actions). Bottom list: vehicles (Spawn). Box overrides with a typed classname.";
     };
 
     class DZPlayerList : DZAdm_List
     {
         idc = 7410;
-        x = 0.31; y = 0.275; w = 0.18; h = 0.40;
+        x = 0.31; y = 0.275; w = 0.18; h = 0.18;
+    };
+    class DZVehicleList : DZAdm_List
+    {
+        idc = 7460;
+        x = 0.31; y = 0.47; w = 0.18; h = 0.165;
     };
     class DZClassEdit : DZAdm_Edit
     {
         idc = 7420;
-        x = 0.31; y = 0.69; w = 0.18; h = 0.045;
+        x = 0.31; y = 0.64; w = 0.18; h = 0.04;
         text = "";
     };
 
@@ -206,14 +211,14 @@ class DZAdminMenu
     class DZ_TpTo : DZAdm_Button
     {
         idc = 7440;
-        x = 0.31; y = 0.745; w = 0.085; h = 0.045;
+        x = 0.31; y = 0.685; w = 0.085; h = 0.045;
         text = "Go to";
         action = "call DZAdmin_tpToSel";
     };
     class DZ_Bring : DZAdm_Button
     {
         idc = 7441;
-        x = 0.405; y = 0.745; w = 0.085; h = 0.045;
+        x = 0.405; y = 0.685; w = 0.085; h = 0.045;
         text = "Bring";
         action = "call DZAdmin_bringSel";
     };
@@ -228,7 +233,7 @@ class DZAdminMenu
     {
         idc = 7443;
         x = 0.51; y = 0.745; w = 0.17; h = 0.045;
-        text = "Spawn vehicle (from box)";
+        text = "Spawn selected vehicle";
         action = "call DZAdmin_spawnVeh";
     };
 

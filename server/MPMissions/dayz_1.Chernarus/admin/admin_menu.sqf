@@ -21,6 +21,21 @@ DZAdmin_openMenu = {
     if (!([] call DZAdmin_isAdmin)) exitWith {};
     createDialog "DZAdminMenu";
     [] call DZAdmin_fillList;
+    [] call DZAdmin_fillVehicles;
+};
+
+// DayZ Mod 1.6 spawnable vehicle set (from dayz_code player_monitor.sqf).
+DZAdmin_vehicleList = ["ATV_CZ_EP1","Lada1_TK_CIV_EP1","Ikarus","Lada1","BAF_Offroad_W","Old_moto_TK_Civ_EP1","SkodaRed","TT650_Civ","UAZ_CDF","LandRover_TK_CIV_EP1","UAZ_Unarmed_TK_CIV_EP1","Volha_2_TK_CIV_EP1","hilux1_civil_3_open_EP1","UH1H_DZ","Fishing_Boat","Smallboat_1","PBX"];
+
+DZAdmin_fillVehicles = {
+    private ["_ctrl","_i"];
+    if (isNull (findDisplay 7400)) exitWith {};
+    _ctrl = (findDisplay 7400) displayCtrl 7460;
+    lbClear _ctrl;
+    {
+        _i = _ctrl lbAdd _x;
+        _ctrl lbSetData [_i, _x];
+    } forEach DZAdmin_vehicleList;
 };
 
 DZAdmin_fillList = {
@@ -129,9 +144,16 @@ DZAdmin_healSel = {
 };
 
 DZAdmin_spawnVeh = {
-    private ["_class","_pos","_dir"];
-    _class = ctrlText ((findDisplay 7400) displayCtrl 7420);
-    if (_class == "") exitWith { systemChat "[Admin] Enter a vehicle classname in the box."; };
+    private ["_class","_pos","_dir","_ctrl","_idx"];
+    _class = "";
+    _ctrl = (findDisplay 7400) displayCtrl 7460;
+    _idx = lbCurSel _ctrl;
+    if (_idx >= 0) then { _class = _ctrl lbData _idx; };
+    // typed classname overrides the list selection
+    private "_typed";
+    _typed = ctrlText ((findDisplay 7400) displayCtrl 7420);
+    if (_typed != "") then { _class = _typed; };
+    if (_class == "") exitWith { systemChat "[Admin] Select a vehicle or type a classname."; };
     _dir = getDir player;
     _pos = player modelToWorld [0, 8, 0];
     [ "spawnVehicle", [_class, _pos, _dir] ] call DZAdmin_send;
