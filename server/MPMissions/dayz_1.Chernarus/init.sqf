@@ -47,8 +47,11 @@ if (!isDedicated) then {
 	//Conduct map operations
 	0 fadeSound 0;
 	0 cutText [(localize "STR_AUTHENTICATING"), "BLACK FADED",60];
-	
+
 	//Run the player monitor
 	_id = player addEventHandler ["Respawn", {_id = [] spawn player_death;}];
-	_playerMonitor = 	[] execVM "\z\addons\dayz_code\system\player_monitor.sqf";	
+	_playerMonitor = 	[] execVM "\z\addons\dayz_code\system\player_monitor.sqf";
 };
+
+//Admin tools (web map position reporter + in-game admin menu). Branches server/client internally.
+[] execVM "admin\admin_init.sqf";

@@ -19,6 +19,9 @@ aiKills = 1;
 diagRadio = 1;
 diagHit = 1;
 
+// Admin menu dialog (Phase 4 in-game tools).
+#include "admin\admin_dialog.hpp"
+
 class RscText
 {
 	type = 0;

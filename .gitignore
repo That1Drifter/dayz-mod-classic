@@ -43,3 +43,9 @@ server/cfgdayz/HiveExt.log
 
 # Reference material pulled from sibling repos (local only)
 info/
+
+# Admin panel: secrets + runtime data (never commit)
+admin/**/appsettings.Production.json
+admin/**/appsettings.local.json
+admin/**/backups/
+admin/**/publish/

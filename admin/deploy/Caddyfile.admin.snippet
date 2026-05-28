@@ -1,0 +1,47 @@
+# =====================================================================
+# Admin panel reverse-proxy. Append this block to the VPS Caddyfile
+# (alongside the existing dayzmodclassic.com block) and reload Caddy.
+#
+# Generate the basicauth hash on the box:
+#   caddy hash-password --plaintext "your-strong-password"
+# Paste the resulting bcrypt hash below. This is a SECOND auth layer; the
+# backend also enforces Admin:Auth (defence in depth).
+#
+# Requires a DNS A record:  admin.dayzmodclassic.com -> 85.239.231.196
+# =====================================================================
+
+admin.dayzmodclassic.com {
+	basicauth {
+		admin JDJhJDE0JEXAMPLEEXAMPLEEXAMPLEEXAMPLEEXAMPLEbcryptHASHgoesHERE
+	}
+
+	reverse_proxy 127.0.0.1:8088
+
+	encode gzip
+
+	tls {
+		issuer acme {
+			disable_tlsalpn_challenge
+		}
+	}
+
+	log {
+		output file C:\caddy\logs\admin-access.log {
+			roll_size 10mb
+			roll_keep 5
+		}
+	}
+}
+
+# ---------------------------------------------------------------------
+# PATH ALTERNATIVE (no extra DNS record). Less clean: the SPA uses
+# absolute /api paths, so handle_path must strip the prefix AND the page
+# must be opened with a trailing slash (/admin/). Subdomain is preferred.
+#
+# Add inside the existing dayzmodclassic.com { } block:
+#
+#   handle_path /admin/* {
+#       basicauth { admin <bcrypt-hash> }
+#       reverse_proxy 127.0.0.1:8088
+#   }
+# ---------------------------------------------------------------------
