@@ -95,9 +95,22 @@ UID on every command - a tampered client cannot run admin actions.
 
 - **Backend builds clean** (`dotnet build`, 0 warnings). RCon, hive, log tail, map feed,
   and DB editor are wired and ready for live config.
-- **In-game SQF is written but needs in-engine validation** - it can't be compiled
-  offline. Test the F2 menu and the position reporter on a live/test server before
-  trusting them. The reporter (diag_log only) is low-risk; the dialog is the part most
-  likely to need tweaks.
+- **In-game menu validated in-engine**: the F2 dialog (player + vehicle pickers,
+  teleport / spawn / heal / godmode) and the position reporter are both confirmed
+  working on the live server. A2OA quirks fixed along the way: `displayAddEventHandler`
+  needs a String handler (not code), and a `CT_LISTBOX` needs `ScrollBar` / `soundSelect`
+  / `autoScroll*` props.
 - Character edits are blocked while the owner is online (hive would overwrite on save).
 - Every hive edit/delete writes a JSON backup to `Admin:Paths:Backups` first.
+
+## Map background
+
+The Map tab has a **Satellite / Topographic / Grid** toggle. The satellite is the
+original Arma 2 Chernarus, extracted from the local game files. It is a Bohemia game
+asset, so it is **gitignored** and deployed to the VPS / kept locally only - a fresh
+clone shows the grid until an image is dropped in.
+
+To add an image, place a square, full-extent JPG (0-15360 both axes, north-up,
+west-left, no margins; 2048x2048 recommended) at
+`wwwroot/assets/chernarus-<sat|topo>.jpg`. Markers align via `px = x/15360*W`,
+`py = H - y/15360*H`, so a correctly-cropped image lines up directly.
