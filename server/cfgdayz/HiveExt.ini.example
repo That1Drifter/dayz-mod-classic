@@ -38,6 +38,9 @@ Database = hivemind
 ;Username to connect with
 Username = root
 ;Password to authenticate with (default is blank)
+;'root' matches the bundled portable MySQL default (localhost-only bind).
+;If you harden the MySQL root password, update this to match. The live
+;HiveExt.ini is gitignored so your value never lands in the public repo.
 Password = root
 
 ;If using OFFICIAL hive, the settings in this section have no effect, appropriate layout will be used

@@ -84,6 +84,15 @@ foreach ($item in $copyItems) {
     }
 }
 
+# HiveExt.ini is gitignored (carries the MySQL password); seed it from the
+# template on a fresh checkout so the server has a working config.
+$hiveIni = Join-Path $A2OA "cfgdayz\HiveExt.ini"
+$hiveExample = Join-Path $A2OA "cfgdayz\HiveExt.ini.example"
+if (-not (Test-Path $hiveIni) -and (Test-Path $hiveExample)) {
+    Copy-Item $hiveExample $hiveIni -Force
+    Write-Host "    Seeded cfgdayz\HiveExt.ini from template (edit the Password before launch)." -ForegroundColor Yellow
+}
+
 # --- 3. Firewall --------------------------------------------------------------
 
 Write-Host "[3/6] Configuring Windows Firewall..."

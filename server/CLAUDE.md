@@ -61,7 +61,7 @@ did (firewall rule, MySQL service, scheduled task) so you can troubleshoot.
 - BE and sigs are ON intentionally (public deploy). Don't disable without explicit ask.
 - DO NOT open MySQL port 3316 externally. Localhost-only.
 - DO NOT change `passwordAdmin` without telling the human.
-- DO NOT commit `cfgdayz\HiveExt.ini` or anything with the MySQL credentials to a public repo.
+- DO NOT commit `cfgdayz\HiveExt.ini` (gitignored). Only the sanitized `HiveExt.ini.example` template is tracked. If you harden the MySQL password, it stays in the gitignored live file, never the repo.
 
 ## Quick verify commands
 
