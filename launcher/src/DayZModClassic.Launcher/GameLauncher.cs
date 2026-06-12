@@ -60,9 +60,9 @@ public static class GameLauncher
         var appidFile = Path.Combine(a2oaRoot, "steam_appid.txt");
 
         if (!File.Exists(beExe))
-            throw new LaunchException("BE fix not installed. Run the DayZ Mod Classic installer first.");
+            throw new LaunchException("BE fix not installed. Click INSTALL in the launcher first.");
         if (!File.Exists(modPbo))
-            throw new LaunchException("Mod not installed. Run the installer first.");
+            throw new LaunchException("Mod not installed. Click INSTALL in the launcher first.");
 
         // Steam identity trick: steam_appid.txt with 33930 in cwd of the game exe.
         try

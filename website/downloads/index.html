@@ -238,16 +238,16 @@
   <div class="wrap">
     <div class="kicker">DayZ Mod 1.6 · Public Release · Windows 10/11</div>
     <h1>Get the<br>mod</h1>
-    <p>One installer. Handles BattlEye, mod files, and the launcher. Arma 2 OA required separately via Steam.</p>
+    <p>One small launcher. It downloads the mod into your Arma 2 OA folder, applies the BattlEye fix, and keeps everything patched. Arma 2 OA required separately via Steam.</p>
 
     <div class="dl-grid">
       <div class="dl-card">
-        <div class="dl-head"><span>// Client installer</span><span class="badge">PLAYERS</span></div>
+        <div class="dl-head"><span>// Launcher</span><span class="badge">PLAYERS</span></div>
         <div class="dl-body">
-          <h2>Player installer</h2>
-          <p>Installs the mod, BattlEye fix, and launcher. Run it, click through, play.</p>
-          <a class="dl-btn" href="/downloads/DayZModClassic-Client-1.0.0-Setup-v5.exe">Download for Players ▸</a>
-          <div class="dl-meta">DayZModClassic-Client-1.0.0-Setup-v5.exe · 195 MB</div>
+          <h2>Launcher</h2>
+          <p>Downloads and installs the mod (~206 MB), applies the BattlEye fix, auto-updates on patch day. No installer.</p>
+          <a class="dl-btn" href="/downloads/DayZModClassic.exe">Download Launcher ▸</a>
+          <div class="dl-meta">DayZModClassic.exe · ~69 MB · no install, run from anywhere</div>
         </div>
       </div>
       <div class="dl-card">
@@ -303,19 +303,19 @@
         </div>
         <div class="step">
           <div class="step-n">02</div>
-          <div><h3>Run the installer</h3>
-            <p>Download and run <code>DayZModClassic-Client-1.0.0-Setup-v5.exe</code>. It detects your Steam library, drops the mod files, applies the BattlEye Win11 fix, and installs the launcher.</p></div>
+          <div><h3>Run the launcher, click INSTALL</h3>
+            <p>Download <code>DayZModClassic.exe</code> (~69 MB, bundles its own runtime) and run it from anywhere. It detects your Steam library, then INSTALL downloads the mod files (~206 MB) and the BattlEye Win11 fix straight into your Arma 2 OA folder.</p></div>
         </div>
         <div class="step">
           <div class="step-n">03</div>
-          <div><h3>Launch and connect</h3>
-            <p>Open "DayZ Mod Classic" from the Start Menu. Select a server and click PLAY. Steam must be running.</p></div>
+          <div><h3>Connect</h3>
+            <p>Select a server and click PLAY. Steam must be running. When a patch ships, the button reads UPDATE and only the changed files download.</p></div>
         </div>
       </div>
 
       <div class="notice">
         <div class="notice-label">// Windows SmartScreen warning</div>
-        <p>The installer is unsigned (code-signing certs run ~$200/yr). Windows will show "Windows protected your PC" on first run.</p>
+        <p>The launcher is unsigned (code-signing certs run ~$200/yr). Windows will show "Windows protected your PC" on first run.</p>
         <ol>
           <li>Click <strong>More info</strong> on the warning.</li>
           <li>Click <strong>Run anyway</strong>.</li>
@@ -329,8 +329,8 @@
     <div class="wrap">
       <div class="sec-head"><span class="sec-no">03</span><h2 class="sec-title">File hashes</h2></div>
       <div class="hash-block">
-        <div><span>DayZModClassic-Client-1.0.0-Setup-v5.exe</span></div>
-        <div style="margin-left:2ch;margin-bottom:12px">SHA-256: 8AD87C8D8D4611EA1B8608D659F2994C92075BB53DB8461C6FE917244F332A1D</div>
+        <div><span>DayZModClassic.exe</span></div>
+        <div style="margin-left:2ch;margin-bottom:12px">SHA-256: published with every release in <a href="/version.json">version.json</a> (field <span>sha256</span>)</div>
         <div><span>DayZModClassic-Server-1.0.0.zip</span></div>
         <div style="margin-left:2ch">SHA-256: A8EED360D8A2B744BA41F5426BACCB6B6211A5D9DCD1B93316E702E59A638AB8</div>
       </div>
@@ -343,18 +343,18 @@
       <div class="steps">
         <div class="step">
           <div class="step-n" style="color:var(--mute)">▸</div>
-          <div><h3>Installer crashes or won't run</h3>
-            <p>Right-click the .exe and choose "Run as administrator". If SmartScreen blocks it, click More info then Run anyway.</p></div>
+          <div><h3>Launcher won't run</h3>
+            <p>If SmartScreen blocks it, click More info then Run anyway. If it opens and immediately closes, check for a second copy already running in the tray.</p></div>
         </div>
         <div class="step">
           <div class="step-n" style="color:var(--mute)">▸</div>
           <div><h3>Launcher says "Missing addons"</h3>
-            <p>Arma 2 is not installed or Steam returned a bad path. Make sure both Arma 2 and A2OA are fully installed via Steam, then re-run the mod installer.</p></div>
+            <p>Arma 2 is not installed or Steam returned a bad path. Make sure both Arma 2 and A2OA are fully installed via Steam, then click INSTALL again in the launcher.</p></div>
         </div>
         <div class="step">
           <div class="step-n" style="color:var(--mute)">▸</div>
           <div><h3>BattlEye kicks on connect</h3>
-            <p>The installer bundles the Dwarden Win11 24H2 BE fix. If kicks persist, verify the installer completed without errors and Steam is running when you connect.</p></div>
+            <p>The launcher installs the Dwarden Win11 24H2 BE fix with the mod. If kicks persist, check the launcher's STATUS panel shows all green and Steam is running when you connect.</p></div>
         </div>
         <div class="step">
           <div class="step-n" style="color:var(--mute)">▸</div>

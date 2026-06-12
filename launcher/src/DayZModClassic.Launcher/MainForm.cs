@@ -12,11 +12,19 @@ namespace DayZModClassic.Launcher;
 
 public class MainForm : Form
 {
-    private const string AppVersion = "1.0.0";
+    private const string AppVersion = AppInfo.Version;
+
+    private enum PlayState { Checking, Install, Update, Play, Busy, Blocked }
 
     private LauncherConfig _config = new();
     private List<ServerEntry> _servers = new();
     private CancellationTokenSource _pingCts = new();
+    private CancellationTokenSource? _installCts;
+    private PlayState _playState = PlayState.Checking;
+    private VersionInfo? _versionInfo;
+    private ModManifest? _manifest;
+    private UpdateCheckResult? _updateCheck;
+    private HashCache _hashCache = HashCache.Load();
 
     // UI
     private ListView _lvServers = null!;
@@ -36,12 +44,15 @@ public class MainForm : Form
     private System.Windows.Forms.Timer _healthTimer = null!;
     private Label _lblStatus = null!;
     private ContextMenuStrip _ctxMenu = null!;
+    private Ui.FlatProgressBar _progress = null!;
+    private LinkLabel _lnkPlayAnyway = null!;
+    private ToolStripMenuItem _miUpdateLauncher = null!;
 
     public MainForm()
     {
-        Text = "DayZ Mod Classic 1.0.0";
-        Size = new Size(720, 480);
-        MinimumSize = new Size(640, 420);
+        Text = $"DayZ Mod Classic {AppVersion}";
+        Size = new Size(760, 570);
+        MinimumSize = new Size(660, 510);
         StartPosition = FormStartPosition.CenterScreen;
 
         BuildUi();
@@ -61,7 +72,7 @@ public class MainForm : Form
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 120));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 140));
 
         // LEFT: server list panel
         var leftPanel = new TableLayoutPanel
@@ -113,11 +124,21 @@ public class MainForm : Form
         leftPanel.Controls.Add(_lvServers, 0, 0);
         leftPanel.Controls.Add(listButtons, 0, 1);
 
-        // RIGHT: health panel
-        var rightPanel = new GroupBox
+        // RIGHT: health panel (Panel + caption; GroupBox borders fight dark themes)
+        var rightPanel = new Panel
         {
-            Text = "Status",
             Dock = DockStyle.Fill,
+            BackColor = Ui.Theme.Panel,
+            Padding = new Padding(1),
+        };
+        var healthCaption = new Label
+        {
+            Text = "STATUS",
+            Dock = DockStyle.Top,
+            Height = 24,
+            TextAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(8, 0, 0, 0),
+            ForeColor = Ui.Theme.Mute,
         };
         var healthLayout = new TableLayoutPanel
         {
@@ -139,13 +160,14 @@ public class MainForm : Form
         healthLayout.Controls.Add(_lblBe);
         healthLayout.Controls.Add(_lblVersion);
         rightPanel.Controls.Add(healthLayout);
+        rightPanel.Controls.Add(healthCaption);
 
         // BOTTOM: action bar (spans full width)
         var actionBar = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 6,
-            RowCount = 2,
+            RowCount = 3,
             Padding = new Padding(0, 8, 0, 0),
         };
         actionBar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110));
@@ -155,6 +177,7 @@ public class MainForm : Form
         actionBar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110));
         actionBar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
         actionBar.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        actionBar.RowStyles.Add(new RowStyle(SizeType.Absolute, 18));
         actionBar.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
 
         var lblPlayer = new Label
@@ -174,11 +197,8 @@ public class MainForm : Form
             Text = "PLAY",
             Dock = DockStyle.Fill,
             Font = new Font(Font.FontFamily, 14, FontStyle.Bold),
-            BackColor = Color.FromArgb(0x2e, 0x7d, 0x32),
-            ForeColor = Color.White,
-            FlatStyle = FlatStyle.Flat,
         };
-        _btnPlay.FlatAppearance.BorderSize = 0;
+        Ui.Theme.StylePrimary(_btnPlay);
         _btnPlay.Click += (_, __) => DoPlay();
 
         _btnRpt = new Button { Text = "Open RPT log", Dock = DockStyle.Fill };
@@ -189,9 +209,12 @@ public class MainForm : Form
         _helpMenu = new ContextMenuStrip();
         var miReport = new ToolStripMenuItem("Save diagnostic report...");
         miReport.Click += (_, __) => SaveDiagReport();
+        _miUpdateLauncher = new ToolStripMenuItem("Update launcher...") { Visible = false };
+        _miUpdateLauncher.Click += async (_, __) => { if (_versionInfo != null) await RunSelfUpdateAsync(_versionInfo); };
         var miAbout  = new ToolStripMenuItem("About...");
         miAbout.Click += (_, __) => ShowAbout();
         _helpMenu.Items.Add(miReport);
+        _helpMenu.Items.Add(_miUpdateLauncher);
         _helpMenu.Items.Add(miAbout);
 
         _btnHelp = new Button { Text = "Help ▾", Dock = DockStyle.Fill };
@@ -204,6 +227,15 @@ public class MainForm : Form
         actionBar.Controls.Add(_btnModFolder, 4, 0);
         actionBar.Controls.Add(_btnHelp, 5, 0);
 
+        _progress = new Ui.FlatProgressBar
+        {
+            Dock = DockStyle.Fill,
+            Margin = new Padding(0, 4, 0, 4),
+            Visible = false,
+        };
+        actionBar.Controls.Add(_progress, 0, 1);
+        actionBar.SetColumnSpan(_progress, 6);
+
         _lblStatus = new Label
         {
             Dock = DockStyle.Fill,
@@ -211,8 +243,18 @@ public class MainForm : Form
             ForeColor = SystemColors.GrayText,
             Text = "",
         };
-        actionBar.Controls.Add(_lblStatus, 0, 1);
-        actionBar.SetColumnSpan(_lblStatus, 6);
+        actionBar.Controls.Add(_lblStatus, 0, 2);
+        actionBar.SetColumnSpan(_lblStatus, 5);
+
+        _lnkPlayAnyway = new LinkLabel
+        {
+            Dock = DockStyle.Fill,
+            TextAlign = ContentAlignment.MiddleRight,
+            Text = "Play anyway",
+            Visible = false,
+        };
+        _lnkPlayAnyway.LinkClicked += (_, __) => PlayAnyway();
+        actionBar.Controls.Add(_lnkPlayAnyway, 5, 2);
 
         // wire root
         root.Controls.Add(leftPanel, 0, 0);
@@ -225,6 +267,12 @@ public class MainForm : Form
         root.SetColumnSpan(bottomHost, 2);
 
         Controls.Add(root);
+        Controls.Add(new Ui.HeaderPanel(AppVersion));
+
+        Ui.Theme.Apply(this);
+        Ui.Theme.StylePrimary(_btnPlay); // Theme.Apply restyles all buttons; re-assert primary
+        _lblStatus.ForeColor = Ui.Theme.Mute;
+        _lblVersion.ForeColor = Ui.Theme.Ink;
     }
 
     private static Label MakeStatusLabel() => new()
@@ -264,14 +312,302 @@ public class MainForm : Form
         _healthTimer.Tick += (_, __) => UpdateHealth();
         _healthTimer.Start();
 
+        if (Array.IndexOf(Environment.GetCommandLineArgs(), "--updated") >= 0)
+            _lblStatus.Text = $"Launcher updated to {AppVersion}.";
+
+        OfferDesktopShortcutOnce();
+
+        SetPlayState(PlayState.Checking);
+        var updateCheckTask = RunStartupUpdateCheckAsync();
         await ReloadServersAsync();
+        await updateCheckTask;
+    }
+
+    // ---- Install / update pipeline ----
+
+    private async Task RunStartupUpdateCheckAsync()
+    {
+        _versionInfo = await ManifestService.FetchVersionAsync(_config.VersionUrl);
+
+        // Launcher self-update gate runs before the mod check.
+        if (_versionInfo != null && !await HandleLauncherUpdateGateAsync(_versionInfo))
+            return; // forced update in progress; PLAY stays blocked
+
+        var manifestUrl = !string.IsNullOrEmpty(_config.ManifestUrl)
+            ? _config.ManifestUrl
+            : _versionInfo?.ManifestUrl ?? "";
+        _manifest = string.IsNullOrEmpty(manifestUrl)
+            ? null
+            : await ManifestService.FetchManifestAsync(manifestUrl);
+
+        if (_manifest == null)
+        {
+            var h = GameLauncher.ComputeHealth(_config);
+            if (h.ModInstalled)
+            {
+                SetPlayState(PlayState.Play);
+                _lblStatus.Text = "Could not check for mod updates (offline?). Playing with installed files.";
+            }
+            else
+            {
+                SetPlayState(PlayState.Blocked);
+                _lblStatus.Text = "Internet connection required for first install.";
+            }
+            return;
+        }
+
+        _lblStatus.Text = "Verifying mod files...";
+        var manifest = _manifest;
+        _updateCheck = await Task.Run(() => ModInstaller.Check(_config, manifest, _hashCache));
+        Logger.Info($"mod check state={_updateCheck.State} files={_updateCheck.ToDownload.Count} bytes={_updateCheck.DownloadBytes}");
+
+        switch (_updateCheck.State)
+        {
+            case InstallState.NotInstalled:
+                SetPlayState(PlayState.Install);
+                _lblStatus.Text = $"Mod not installed. Click INSTALL to download {FormatMb(_updateCheck.DownloadBytes)}.";
+                break;
+            case InstallState.UpdateAvailable:
+                SetPlayState(PlayState.Update);
+                _lblStatus.Text = $"Update available (mod {_updateCheck.ModVersion}): {_updateCheck.ToDownload.Count} file(s), {FormatMb(_updateCheck.DownloadBytes)}.";
+                break;
+            default:
+                SetPlayState(PlayState.Play);
+                _lblStatus.Text = $"Mod {_updateCheck.ModVersion} is up to date.";
+                break;
+        }
+    }
+
+    // Returns false when a forced update takes over (UI stays blocked).
+    private async Task<bool> HandleLauncherUpdateGateAsync(VersionInfo v)
+    {
+        bool forced = IsNewer(v.MinRequired, AppVersion);
+        bool optional = !forced && IsNewer(v.Latest, AppVersion);
+        if (!forced && !optional) return true;
+
+        if (!SelfUpdater.ExeDirWritable())
+        {
+            _lblStatus.Text = $"Launcher {v.Latest} is available; download it from dayzmodclassic.com/downloads.";
+            if (forced)
+            {
+                SetPlayState(PlayState.Blocked);
+                MessageBox.Show(this,
+                    $"Launcher {v.Latest} is required, but this launcher cannot update itself " +
+                    "from its current folder.\n\nDownload the new version from " +
+                    "https://dayzmodclassic.com/downloads and replace this file.",
+                    "DayZ Mod Classic", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                try { Process.Start(new ProcessStartInfo("https://dayzmodclassic.com/downloads") { UseShellExecute = true }); }
+                catch { }
+                return false;
+            }
+            return true;
+        }
+
+        if (forced)
+        {
+            SetPlayState(PlayState.Blocked);
+            var pick = MessageBox.Show(this,
+                $"Launcher update {v.Latest} is required to continue.\n\nUpdate now?",
+                "DayZ Mod Classic", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            if (pick != DialogResult.OK)
+            {
+                Close();
+                return false;
+            }
+            await RunSelfUpdateAsync(v);
+            return false;
+        }
+
+        // Optional: surface it, keep going.
+        _lblStatus.Text = $"Launcher {v.Latest} is available. Use Help > Update launcher.";
+        _miUpdateLauncher.Visible = true;
+        return true;
+    }
+
+    private async Task RunSelfUpdateAsync(VersionInfo v)
+    {
+        _btnPlay.Enabled = false;
+        _progress.Visible = true;
+        _progress.Fraction = 0;
+        var progress = new Progress<InstallProgress>(p =>
+        {
+            _progress.Fraction = p.BytesTotal > 0 ? (double)p.BytesDone / p.BytesTotal : 0;
+            _lblStatus.Text = $"Downloading launcher {v.Latest}...  {FormatMb(p.BytesDone)}{(p.BytesTotal > 0 ? " / " + FormatMb(p.BytesTotal) : "")}";
+        });
+        try
+        {
+            var staged = await SelfUpdater.DownloadAsync(v, progress, CancellationToken.None);
+            _lblStatus.Text = "Restarting to apply the update...";
+            SelfUpdater.BeginUpdate(staged);
+        }
+        catch (Exception ex)
+        {
+            Logger.Exception("self-update download", ex);
+            _progress.Visible = false;
+            MessageBox.Show(this, $"Launcher update failed: {ex.Message}", "DayZ Mod Classic",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private static bool IsNewer(string candidate, string current)
+    {
+        return Version.TryParse(candidate, out var c) && Version.TryParse(current, out var cur) && c > cur;
+    }
+
+    private void SetPlayState(PlayState state)
+    {
+        _playState = state;
+        _lnkPlayAnyway.Visible = state == PlayState.Update;
+        switch (state)
+        {
+            case PlayState.Checking:
+                _btnPlay.Text = "...";
+                _btnPlay.Enabled = false;
+                break;
+            case PlayState.Install:
+                _btnPlay.Text = "INSTALL";
+                _btnPlay.Enabled = true;
+                break;
+            case PlayState.Update:
+                _btnPlay.Text = "UPDATE";
+                _btnPlay.Enabled = true;
+                break;
+            case PlayState.Play:
+                _btnPlay.Text = "PLAY";
+                _btnPlay.Enabled = true;
+                break;
+            case PlayState.Busy:
+                _btnPlay.Text = "CANCEL";
+                _btnPlay.Enabled = true;
+                break;
+            case PlayState.Blocked:
+                _btnPlay.Text = "PLAY";
+                _btnPlay.Enabled = false;
+                break;
+        }
+    }
+
+    private async Task RunInstallAsync()
+    {
+        if (_manifest == null || _updateCheck == null) return;
+        if (string.IsNullOrEmpty(_config.A2oaPath) || !Directory.Exists(_config.A2oaPath))
+        {
+            var pick = MessageBox.Show(this,
+                "Arma 2: Operation Arrowhead was not found.\n\n" +
+                "DayZ Mod Classic needs Arma 2 and Arma 2: Operation Arrowhead installed via Steam " +
+                "(run each once so they register).\n\nOpen the Steam install page now?",
+                "DayZ Mod Classic", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (pick == DialogResult.Yes)
+            {
+                try { Process.Start(new ProcessStartInfo("steam://install/33930") { UseShellExecute = true }); }
+                catch (Exception ex) { Logger.Exception("steam install link", ex); }
+            }
+            return;
+        }
+
+        var wasState = _playState;
+        SetPlayState(PlayState.Busy);
+        _btnRefresh.Enabled = false;
+        _progress.Visible = true;
+        _progress.Fraction = 0;
+        _installCts = new CancellationTokenSource();
+
+        var progress = new Progress<InstallProgress>(p =>
+        {
+            _progress.Fraction = p.BytesTotal > 0 ? (double)p.BytesDone / p.BytesTotal : 0;
+            _lblStatus.Text = p.Phase == "commit"
+                ? $"Installing {p.CurrentFile} ({p.FileIndex}/{p.FileCount})..."
+                : $"{p.CurrentFile}  ({p.FileIndex}/{p.FileCount})  {p.BytesPerSec / (1024 * 1024):F1} MB/s  {FormatMb(p.BytesDone)} / {FormatMb(p.BytesTotal)}";
+        });
+
+        try
+        {
+            await ModInstaller.InstallAsync(_config, _manifest, _updateCheck.ToDownload, _hashCache, progress, _installCts.Token);
+            _updateCheck = _updateCheck with { State = InstallState.UpToDate, ToDownload = Array.Empty<ManifestFile>(), DownloadBytes = 0 };
+            SetPlayState(PlayState.Play);
+            UpdateHealth();
+            // BeginInvoke queues behind any still-pending progress posts so the
+            // final status text is not overwritten by a stale report.
+            var doneText = $"Mod {_manifest.ModVersion} installed.";
+            BeginInvoke(new Action(() => _lblStatus.Text = doneText));
+        }
+        catch (OperationCanceledException)
+        {
+            SetPlayState(wasState);
+            _lblStatus.Text = "Download cancelled. Finished files are kept; click again to resume.";
+        }
+        catch (ModInstaller.InstallException ex)
+        {
+            Logger.Error($"install failed: {ex.Message}");
+            SetPlayState(wasState);
+            _lblStatus.Text = "Install failed.";
+            MessageBox.Show(this, ex.Message, "DayZ Mod Classic", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        catch (Exception ex)
+        {
+            Logger.Exception("install failed", ex);
+            SetPlayState(wasState);
+            _lblStatus.Text = "Install failed.";
+            MessageBox.Show(this, $"Unexpected error:\n{ex.Message}", "DayZ Mod Classic", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            _installCts.Dispose();
+            _installCts = null;
+            _progress.Visible = false;
+            _btnRefresh.Enabled = true;
+        }
+    }
+
+    private void PlayAnyway()
+    {
+        if (!_config.PlayAnywayWarned)
+        {
+            var pick = MessageBox.Show(this,
+                "Your mod files are out of date. If the server requires the new files, " +
+                "you may be kicked at the lobby (signature check).\n\nPlay anyway?",
+                "DayZ Mod Classic", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (pick != DialogResult.Yes) return;
+            _config.PlayAnywayWarned = true;
+            ConfigStore.Save(_config);
+        }
+        LaunchSelected();
+    }
+
+    private static string FormatMb(long bytes) => $"{bytes / (1024.0 * 1024.0):F1} MB";
+
+    private void OfferDesktopShortcutOnce()
+    {
+        if (_config.ShortcutOffered) return;
+        _config.ShortcutOffered = true;
+        ConfigStore.Save(_config);
+
+        try
+        {
+            var exe = Environment.ProcessPath;
+            if (exe == null || ShortcutService.DesktopShortcutExists()) return;
+            // Already living on the desktop: a shortcut would be redundant.
+            if (exe.Contains(@"\Desktop\", StringComparison.OrdinalIgnoreCase)) return;
+
+            var pick = MessageBox.Show(this,
+                "Create a desktop shortcut for DayZ Mod Classic?",
+                "DayZ Mod Classic", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (pick == DialogResult.Yes)
+                ShortcutService.CreateDesktopShortcut(exe);
+        }
+        catch (Exception ex)
+        {
+            Logger.Exception("shortcut offer", ex);
+        }
     }
 
     private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
     {
         try { _pingCts.Cancel(); } catch { }
+        try { _installCts?.Cancel(); } catch { }
         _config.PlayerName = _tbName.Text;
         ConfigStore.Save(_config);
+        _hashCache.Save();
     }
 
     // ---- Health ----
@@ -286,7 +622,7 @@ public class MainForm : Form
 
     private static void SetStatus(Label l, string label, bool ok, string detail)
     {
-        l.ForeColor = ok ? Color.FromArgb(0x2e, 0x7d, 0x32) : Color.FromArgb(0xc6, 0x28, 0x28);
+        l.ForeColor = ok ? Ui.Theme.Signal : Ui.Theme.Flare;
         var mark = ok ? "OK" : "X ";
         l.Text = $"[{mark}] {label}{(string.IsNullOrEmpty(detail) ? "" : ": " + detail)}";
     }
@@ -349,7 +685,7 @@ public class MainForm : Form
             item.SubItems.Add("...");
             item.SubItems.Add(s.Version);
             item.Tag = s;
-            if (s.Custom) item.ForeColor = Color.FromArgb(0x15, 0x65, 0xC0);
+            if (s.Custom) item.ForeColor = Ui.Theme.Rust;
             _lvServers.Items.Add(item);
         }
         _lvServers.EndUpdate();
@@ -463,6 +799,25 @@ public class MainForm : Form
 
     // ---- Buttons ----
     private async void DoPlay()
+    {
+        switch (_playState)
+        {
+            case PlayState.Busy:
+                try { _installCts?.Cancel(); } catch { }
+                return;
+            case PlayState.Install:
+            case PlayState.Update:
+                await RunInstallAsync();
+                return;
+            case PlayState.Play:
+                LaunchSelected();
+                return;
+            default:
+                return;
+        }
+    }
+
+    private async void LaunchSelected()
     {
         var s = GetSelectedServer();
         if (s == null)

@@ -16,7 +16,7 @@ public static class ServerListService
         try
         {
             using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
-            http.DefaultRequestHeaders.UserAgent.ParseAdd("DayZModClassicLauncher/1.0.0");
+            http.DefaultRequestHeaders.UserAgent.ParseAdd($"DayZModClassicLauncher/{AppInfo.Version}");
             var json = await http.GetStringAsync(url, ct);
             var list = JsonSerializer.Deserialize<List<ServerEntry>>(json, new JsonSerializerOptions
             {

@@ -29,4 +29,9 @@ public class LauncherConfig
     [JsonPropertyName("a2BasePath")] public string A2BasePath { get; set; } = "";
     [JsonPropertyName("steamPath")] public string SteamPath { get; set; } = "";
     [JsonPropertyName("customServers")] public List<ServerEntry> CustomServers { get; set; } = new();
+    [JsonPropertyName("versionUrl")] public string VersionUrl { get; set; } = "https://dayzmodclassic.com/version.json";
+    // Empty = take manifestUrl from version.json; set explicitly for local testing.
+    [JsonPropertyName("manifestUrl")] public string ManifestUrl { get; set; } = "";
+    [JsonPropertyName("shortcutOffered")] public bool ShortcutOffered { get; set; }
+    [JsonPropertyName("playAnywayWarned")] public bool PlayAnywayWarned { get; set; }
 }

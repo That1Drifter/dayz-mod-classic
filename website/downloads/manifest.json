@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "modVersion": "1.0.0",
+  "generated": "2026-06-12T03:16:11Z",
+  "baseUrl": "https://dayzmodclassic.com/downloads/files/",
+  "files": [
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_anim.pbo",
+      "kind": "mod",
+      "size": 58313950,
+      "sha256": "b118d10eb6054fddae2d960178ff75fecf70621d4ef58045af13ba97495a477e",
+      "url": "b118d10eb6054fddae2d960178ff75fecf70621d4ef58045af13ba97495a477e.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_anim.pbo.that1drifter.bisign",
+      "kind": "mod",
+      "size": 565,
+      "sha256": "121b0610bbbc1f2e53aeddaddcdd49f469b4ed8b5cf5a68f6aa342014dd8840b",
+      "url": "121b0610bbbc1f2e53aeddaddcdd49f469b4ed8b5cf5a68f6aa342014dd8840b.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_code.pbo",
+      "kind": "mod",
+      "size": 762897,
+      "sha256": "c34f2278f543399e437257f73705de30b7ad4afc16275c89a81b34c66d7ee2ec",
+      "url": "c34f2278f543399e437257f73705de30b7ad4afc16275c89a81b34c66d7ee2ec.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_code.pbo.that1drifter.bisign",
+      "kind": "mod",
+      "size": 565,
+      "sha256": "88cf79e8690cb1ba1f9835451c96d9b9b67ddd45c5356b3d00a211052eb65273",
+      "url": "88cf79e8690cb1ba1f9835451c96d9b9b67ddd45c5356b3d00a211052eb65273.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_equip.pbo",
+      "kind": "mod",
+      "size": 26455163,
+      "sha256": "13d15f6a39c38fdcce1532ccd359f8b7222ebbe308638295cdd26c63318a71e8",
+      "url": "13d15f6a39c38fdcce1532ccd359f8b7222ebbe308638295cdd26c63318a71e8.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_equip.pbo.that1drifter.bisign",
+      "kind": "mod",
+      "size": 565,
+      "sha256": "a59dd0c9b1433627682f30c3fcf9fae7e36c3d9d6c32eed7e52919acae90c07a",
+      "url": "a59dd0c9b1433627682f30c3fcf9fae7e36c3d9d6c32eed7e52919acae90c07a.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_sfx.pbo",
+      "kind": "mod",
+      "size": 31919483,
+      "sha256": "89c91128f092c82d7be28b450ce27193c5f0863a8996242e99b97a33df376ae7",
+      "url": "89c91128f092c82d7be28b450ce27193c5f0863a8996242e99b97a33df376ae7.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_sfx.pbo.that1drifter.bisign",
+      "kind": "mod",
+      "size": 565,
+      "sha256": "3fc36b6dbd9fe4d5fe5075324ab7d950e53fc1ba4a8657638e3a1f5356cc7623",
+      "url": "3fc36b6dbd9fe4d5fe5075324ab7d950e53fc1ba4a8657638e3a1f5356cc7623.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_vehicles.pbo",
+      "kind": "mod",
+      "size": 6556487,
+      "sha256": "a3b801d215e1d6fc601a4623623e985ee277ffc20a7380ec08a7fcca7a7883ed",
+      "url": "a3b801d215e1d6fc601a4623623e985ee277ffc20a7380ec08a7fcca7a7883ed.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_vehicles.pbo.that1drifter.bisign",
+      "kind": "mod",
+      "size": 565,
+      "sha256": "52930e068a7773fc1103cbd03060e99c26e2afef70538e9e18e4ba3b00a26d5b",
+      "url": "52930e068a7773fc1103cbd03060e99c26e2afef70538e9e18e4ba3b00a26d5b.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_weapons.pbo",
+      "kind": "mod",
+      "size": 24885662,
+      "sha256": "3a635f0a38cf572a12a65ed853893576d38956a0ae5a0f190b03879370965df4",
+      "url": "3a635f0a38cf572a12a65ed853893576d38956a0ae5a0f190b03879370965df4.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz_weapons.pbo.that1drifter.bisign",
+      "kind": "mod",
+      "size": 565,
+      "sha256": "b3ee084903ebadc5e98643f660e041c47a6ce293278aa8334a5d11ff87a8e5b9",
+      "url": "b3ee084903ebadc5e98643f660e041c47a6ce293278aa8334a5d11ff87a8e5b9.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz.pbo",
+      "kind": "mod",
+      "size": 30408242,
+      "sha256": "5d80f013fc6532583ccd99347446286e069ed442ddaf9d99a0a9185e85c624e4",
+      "url": "5d80f013fc6532583ccd99347446286e069ed442ddaf9d99a0a9185e85c624e4.blob"
+    },
+    {
+      "path": "@dayzmodclassic/AddOns/dayz.pbo.that1drifter.bisign",
+      "kind": "mod",
+      "size": 565,
+      "sha256": "21c3d9975e804651288180d83f7ca911ae52e35d804b52b22bc2b11618338bd3",
+      "url": "21c3d9975e804651288180d83f7ca911ae52e35d804b52b22bc2b11618338bd3.blob"
+    },
+    {
+      "path": "Keys/dayz.bikey",
+      "kind": "key",
+      "size": 157,
+      "sha256": "4e12606236ae8bf4ddb6bdd960090d4e6610b1e9faa144839ae182d45aac74fd",
+      "url": "4e12606236ae8bf4ddb6bdd960090d4e6610b1e9faa144839ae182d45aac74fd.blob"
+    },
+    {
+      "path": "Keys/that1drifter.bikey",
+      "kind": "key",
+      "size": 165,
+      "sha256": "4a0ca5fb090ad02e147676387e246dcacee58ce11017732c6525fcb5d026c164",
+      "url": "4a0ca5fb090ad02e147676387e246dcacee58ce11017732c6525fcb5d026c164.blob"
+    },
+    {
+      "path": "ArmA2OA_BE.exe",
+      "kind": "befix",
+      "size": 1572520,
+      "sha256": "f26c8c4823db745df11c41ad6d21807c5262b07c1a05be3d08e3f0798afa38ed",
+      "url": "f26c8c4823db745df11c41ad6d21807c5262b07c1a05be3d08e3f0798afa38ed.blob"
+    },
+    {
+      "path": "BattlEye/BEClient.dll",
+      "kind": "befix",
+      "size": 4832544,
+      "sha256": "a49e510a85396e73e8416adaf83815d7085fa53b8118c58b5c9a0ebe8d4e66ca",
+      "url": "a49e510a85396e73e8416adaf83815d7085fa53b8118c58b5c9a0ebe8d4e66ca.blob"
+    },
+    {
+      "path": "BattlEye/BEServer.dll",
+      "kind": "befix",
+      "size": 343328,
+      "sha256": "21ccafd8c0a362d2783916b1981df673677238fe8d082a91752ba43b7aad9fbc",
+      "url": "21ccafd8c0a362d2783916b1981df673677238fe8d082a91752ba43b7aad9fbc.blob"
+    },
+    {
+      "path": "BattlEye/BEService_x64.exe",
+      "kind": "befix",
+      "size": 18663720,
+      "sha256": "1d325b52b55fe35997a5669ed609d1c8877b7fb1edf599aa736a0fd86704395a",
+      "url": "1d325b52b55fe35997a5669ed609d1c8877b7fb1edf599aa736a0fd86704395a.blob"
+    },
+    {
+      "path": "BattlEye/BEService.exe",
+      "kind": "befix",
+      "size": 11279656,
+      "sha256": "ca2e58d963f019260f6f97e6b1ca3aa5ae01d48c209c61b3e309dd0eaad9b080",
+      "url": "ca2e58d963f019260f6f97e6b1ca3aa5ae01d48c209c61b3e309dd0eaad9b080.blob"
+    },
+    {
+      "path": "steam_appid.txt",
+      "kind": "misc",
+      "size": 5,
+      "sha256": "d56cf74fa6ebf39d8d0f6341ac038037ba9062671161a73b88241a892d18363e",
+      "url": "d56cf74fa6ebf39d8d0f6341ac038037ba9062671161a73b88241a892d18363e.blob"
+    }
+  ]
+}

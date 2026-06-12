@@ -9,9 +9,10 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <RootNamespace>DayZModClassic.Launcher</RootNamespace>
     <AssemblyName>DayZModClassic</AssemblyName>
-    <Version>1.0.0</Version>
-    <FileVersion>1.0.0.0</FileVersion>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Version>1.1.0</Version>
+    <FileVersion>1.1.0.0</FileVersion>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <ApplicationIcon>app.ico</ApplicationIcon>
     <Company>DayZ Mod Classic</Company>
     <Product>DayZ Mod Classic Launcher</Product>
 
@@ -25,6 +26,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\servers.fallback.json" />
+    <EmbeddedResource Include="Resources\banner.png" />
   </ItemGroup>
 
 </Project>
+
+

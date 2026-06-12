@@ -1,7 +1,9 @@
 {
-  "latest": "1.0.0",
-  "released": "2026-05-28",
-  "downloadUrl": "https://dayzmodclassic.com/downloads/DayZModClassic-Client-1.0.0-Setup-v5.exe",
+  "latest": "1.1.0",
+  "released": "2026-06-11",
+  "downloadUrl": "https://dayzmodclassic.com/downloads/DayZModClassic.exe",
   "changelogUrl": "https://dayzmodclassic.com/downloads/CHANGELOG.md",
-  "minRequired": "1.0.0"
+  "minRequired": "1.0.0",
+  "manifestUrl": "https://dayzmodclassic.com/downloads/manifest.json",
+  "sha256": "504d40a876c990106a301b1ac444799622ca31c3dbbfbc3460755e98dc44be3f"
 }
