@@ -19,10 +19,20 @@ are unchanged from 1.0.0, so `-ModVersion` stays 1.0.0; only the launcher bumps.
 
 ## Server bundle
 
-No build tooling yet (manual assembly). The deployable bundle is the golden
-tree (`MySQL\`, `@dayzmodclassic\`, `@hive\`, BE fix) overlaid with the repo's
-current `server\` tree (mission, configs, scripts) so the published zip carries
-the admin tools and the vehicle-fleet seeder. Output: `DayZModClassic-Server-1.1.0.zip`.
+Built by `tools\New-ServerBundle.ps1`. The deployable bundle is a golden tree
+(`MySQL\`, `@dayzmodclassic\`, `@hive\`, BE fix) overlaid with the repo's current
+`server\` tree (mission, configs, scripts) so the published zip carries the admin
+tools and the vehicle-fleet seeder. The script asserts the golden mod PBOs match
+`installer\payload` (else clients fail verifySignatures=2) and warns if the
+bundled DB is not empty. Heavy binaries are not in git, so point `-GoldenDir` at
+a prior assembled bundle:
+
+```powershell
+.\tools\New-ServerBundle.ps1 -Version 1.1.0 -GoldenDir C:\WorkDrive\arma2dayzmod\releases\1.0.0\server
+```
+
+Output: `DayZModClassic-Server-1.1.0.zip` (+ `.sha256`). The script prints the
+hash to paste into the downloads page and the scp deploy command.
 
 ## What changed in 1.1.0
 
