@@ -253,6 +253,92 @@
 <main>
   <section id="timeline" class="wrap">
 
+    <article class="entry" data-type="feature">
+      <details open>
+        <summary>
+          <span class="date">2026-06-19</span>
+          <span class="chip chip-feature">New · v1.1.0</span>
+          <span class="title">
+            <span class="title-main">Vehicles spawn again</span>
+            <small>Fresh servers seed a fleet of cars, bikes, trucks and boats across the map.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>What changed</h4>
+          <p>This revival shipped without a working vehicle spawner, so private and LAN servers never got any vehicles no matter how long you played. Servers now seed about 50 vehicles on first boot.</p>
+          <h4>What to expect now</h4>
+          <ul>
+            <li>Cars, motorbikes, ATVs, vans, trucks, a bus and a few coastal boats, scattered near towns and airfields.</li>
+            <li>They spawn damaged and low on fuel, like the old days: find parts and jerry cans to get them running.</li>
+            <li>Once seeded they persist. The fleet only refills on a fresh database, so restarts won't pile up duplicates.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="entry" data-type="fix">
+      <details>
+        <summary>
+          <span class="date">2026-06-19</span>
+          <span class="chip chip-fix">Fix · v1.1.0</span>
+          <span class="title">
+            <span class="title-main">Crashed helicopters are back</span>
+            <small>Heli crash sites spawn again, with loot worth the trek.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>What changed</h4>
+          <p>The crash-site spawner relied on engine helpers that don't load on the server, so it failed and no wrecks appeared. Rewritten to run reliably.</p>
+          <h4>What to expect now</h4>
+          <ul>
+            <li>Several smoking UH-1 wrecks spawn around the map each restart, with military loot piled nearby.</li>
+            <li>Crash sites only appear on a dedicated server, not the in-game host option.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="entry" data-type="feature">
+      <details>
+        <summary>
+          <span class="date">2026-06-19</span>
+          <span class="chip chip-feature">New · v1.1.0</span>
+          <span class="title">
+            <span class="title-main">Admin tools: in-game menu + live web map</span>
+            <small>Whitelisted admins get an in-game menu, plus a web panel with a live player map.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>What changed</h4>
+          <ul>
+            <li>An in-game admin menu for whitelisted UIDs: teleport, spawn, heal, weather.</li>
+            <li>A web admin panel showing players and vehicles on a live map, with Satellite, Topographic and Grid backgrounds.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="entry" data-type="setup">
+      <details>
+        <summary>
+          <span class="date">2026-06-19</span>
+          <span class="chip chip-setup">Setup · v1.1.0</span>
+          <span class="title">
+            <span class="title-main">One launcher, no installer</span>
+            <small>The launcher now installs and updates the mod itself. The separate installer is retired.</small>
+          </span>
+          <span class="toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="body">
+          <h4>What changed</h4>
+          <p>One download. The launcher detects your Arma 2 OA folder, installs the signature-correct mod files and the Win11 BattlEye fix, and handles every future update. No more standalone installer.</p>
+        </div>
+      </details>
+    </article>
+
     <article class="entry" data-type="fix">
       <details open>
         <summary>

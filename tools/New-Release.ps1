@@ -143,7 +143,7 @@ function Set-Prop($obj, $name, $value) {
     else { $obj | Add-Member -NotePropertyName $name -NotePropertyValue $value }
 }
 Set-Prop $version 'manifestUrl' "https://dayzmodclassic.com/downloads/manifest.json"
-Set-Prop $version 'changelogUrl' "https://dayzmodclassic.com/downloads/CHANGELOG.md"
+Set-Prop $version 'changelogUrl' "https://dayzmodclassic.com/changelog/"
 if ($LauncherVersion) {
     Set-Prop $version 'latest' $LauncherVersion
     Set-Prop $version 'released' (Get-Date -Format 'yyyy-MM-dd')
