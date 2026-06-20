@@ -1,5 +1,17 @@
 # DayZ Mod Classic, Changelog
 
+## 1.1.0, 2026-06-19
+
+### Changed
+- The launcher now installs and updates the mod itself. The standalone installer is retired: one download, and the launcher handles first-time setup, signature-correct PBOs, and every future update.
+
+### Added
+- In-game admin menu plus a web admin panel with a live player map (teleport, vehicle picker, Satellite / Topographic / Grid map background).
+- Server vehicle fleet seeding. Vehicles now spawn automatically on a fresh database (about 50 across Chernarus, with stock-feel partial damage and low fuel), fixing the long-standing "no vehicles ever spawn" issue on private and LAN servers.
+
+### Notes
+- Server operators: update to the 1.1.0 server bundle (or drop the new `MPMissions\dayz_1.Chernarus\` over your existing mission) to enable vehicle spawning. Seeding self-guards: it only fills an empty fleet, so it will not duplicate vehicles on restart.
+
 ## 1.0.0, 2026-05-26
 
 Initial public release.

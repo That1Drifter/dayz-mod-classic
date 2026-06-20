@@ -1,0 +1,137 @@
+/*
+	vehicles\spawn_vehicles.sqf  -  boot-time vehicle seeder (Path 2)
+
+	This 1.7.3 HiveEXT build has no server-side vehicle spawner (the old
+	CHILD:301 / object_classes roll is gone; see info/docs/DATABASE.md:69,79).
+	The world loader (server_monitor.sqf, CHILD:302) only restores vehicles
+	already in object_data, so a fresh DB never gets any.
+
+	This script seeds the fleet once, persisting each vehicle to object_data
+	via CHILD:308 (same path local_publishObj uses). It self-guards on the
+	count of live vehicles already loaded for the instance: once seeded, that
+	count is >0 on the next boot, so it never double-spawns. A full DB wipe (or
+	total fleet destruction) drops the count back to 0 and lets it reseed.
+
+	Stock feel: vehicles spawn damaged and low on fuel, scattered near towns.
+	Classnames below are canonical Chernarus 1.6; verify against the RPT on
+	first boot and prune any that log "Cannot create non-ai vehicle".
+*/
+
+if (!isServer) exitWith {};
+
+private ["_landTarget","_anchors","_bikes","_cars","_vans","_heavy","_boats",
+		 "_boatSpots","_live","_publish","_pickClass","_i","_anchor","_pos","_class"];
+
+// --- wait for server_monitor to finish hydrating the world ---------------
+waitUntil { uiSleep 1; !isNil "allowConnection" && {allowConnection} };
+uiSleep 5;
+
+// --- guard: skip if a fleet already exists for this instance --------------
+_live = { (_x isKindOf "AllVehicles") && {!(_x isKindOf "Man")} } count dayz_serverObjectMonitor;
+if (_live > 0) exitWith {
+	diag_log format ["[VEH-SEED] %1 live vehicle(s) already loaded; skipping seed.", _live];
+};
+
+diag_log "[VEH-SEED] empty fleet detected, seeding...";
+
+_landTarget = 47;
+
+// town / airfield anchors (map grid metres). Vehicles drop near these.
+_anchors = [
+	[4400,10350], [12060,12640], [6720,2560], [10260,2150], [12380,9050],
+	[13510,6280], [6080,7710], [7100,7750], [3760,8800], [3530,8000],
+	[2620,5380], [2120,3760], [1990,2270], [4760,2440], [9560,8650],
+	[11250,8680], [11280,7670], [8650,7050], [7460,5340], [10300,5670],
+	[7060,2950], [13500,10200], [3870,7000], [5450,7050], [5060,8160],
+	[5990,9550], [3700,4380], [3330,2480]
+];
+
+// weighted class pools (stock Chernarus civilian set)
+_bikes = ["TT650_Civ","TT650_TK_CIV_EP1","ATV_US_EP1","ATV_CZ_EP1"];
+_cars  = ["VWGolf","Skoda","SkodaBlue","SkodaRed","SkodaGreen",
+		  "Lada1","Lada2","LadaLM","datsun1_civil_3_open","datsun1_civil_1_open",
+		  "Volha_1_TK_CIV_EP1","Volha_2_TK_CIV_EP1","hilux1_civil_3_open"];
+_vans  = ["S1203_TK_CIV_EP1","UAZ_Unarmed_TK_EP1","tractorOld"];
+_heavy = ["Ural_TK_CIV_EP1","V3S_Civ","Ikarus"];
+
+_boats     = ["PBX","Smallboat_1","Fishing_Boat"];
+_boatSpots = [ [6900,2350], [10330,1980], [12500,8770] ];  // Cherno / Elektro / Berezino coast
+
+// pick a weighted class: 40% bikes, 35% cars, 15% vans, 10% heavy
+_pickClass = {
+	private "_r"; _r = random 1;
+	switch (true) do {
+		case (_r < 0.40): { _bikes call BIS_fnc_selectRandom };
+		case (_r < 0.75): { _cars  call BIS_fnc_selectRandom };
+		case (_r < 0.90): { _vans  call BIS_fnc_selectRandom };
+		default          { _heavy call BIS_fnc_selectRandom };
+	};
+};
+
+// create + persist one vehicle (damaged, low fuel) -> object_data via CHILD:308
+_publish = {
+	private ["_class","_pos","_dir","_obj","_hp","_dmgArr","_sel","_d","_fuel","_uid","_key"];
+	_class = _this select 0;
+	_pos   = _this select 1;
+	_dir   = round (random 360);
+
+	_obj = createVehicle [_class, _pos, [], 0, "CAN_COLLIDE"];
+	if (isNull _obj) exitWith {
+		diag_log format ["[VEH-SEED] failed to create %1 (bad classname?)", _class];
+		objNull
+	};
+	_obj setDir _dir;
+	_obj setPos _pos;
+	_obj setVariable ["OwnerID", "0", true];
+
+	// roll partial damage on ~half the hitpoints (stock: hunt parts)
+	_hp = _obj call vehicle_getHitpoints;
+	_dmgArr = [];
+	{
+		_sel = getText (configFile >> "CfgVehicles" >> _class >> "HitPoints" >> _x >> "name");
+		if (_sel != "" && {random 1 < 0.5}) then {
+			_d = (round (random 8)) / 10;   // 0.0 .. 0.8
+			if (_d > 0) then {
+				[_obj,_sel,_d] call object_setFixServer;
+				_dmgArr set [count _dmgArr,[_sel,_d]];
+			};
+		};
+	} forEach _hp;
+
+	_fuel = random 0.5;                     // 0 .. 50%
+	_obj setFuel _fuel;
+
+	_obj call fnc_vehicleEventHandler;
+	dayz_serverObjectMonitor set [count dayz_serverObjectMonitor,_obj];
+	_uid = _obj call dayz_objectUID;
+
+	waitUntil { !hiveInUse };
+	hiveInUse = true;
+	_key = format ["CHILD:308:%1:%2:%3:%4:%5:%6:%7:%8:%9:",
+		dayZ_instance, _class, 0, 0, [_dir,_pos], [], _dmgArr, _fuel, _uid];
+	_key call server_hiveWrite;
+	hiveInUse = false;
+
+	_obj setVariable ["ObjectUID", _uid, true];
+	diag_log format ["[VEH-SEED] published %1 uid=%2 fuel=%3", _class, _uid, _fuel];
+	_obj
+};
+
+// --- land vehicles --------------------------------------------------------
+for "_i" from 1 to _landTarget do {
+	_anchor = _anchors call BIS_fnc_selectRandom;
+	_pos    = [_anchor, 0, 140, 8, 0, 0.45, 0] call BIS_fnc_findSafePos;
+	_class  = call _pickClass;
+	[_class, _pos] call _publish;
+	uiSleep 0.5;
+};
+
+// --- boats (coast, water-side safe pos) -----------------------------------
+{
+	_pos   = [_x, 0, 120, 6, 2, 0.6, 0] call BIS_fnc_findSafePos;  // water mode 2
+	_class = _boats call BIS_fnc_selectRandom;
+	[_class, _pos] call _publish;
+	uiSleep 0.5;
+} forEach _boatSpots;
+
+diag_log format ["[VEH-SEED] done. Seeded %1 land + %2 boats.", _landTarget, count _boatSpots];

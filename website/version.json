@@ -1,9 +1,9 @@
 {
   "latest": "1.1.0",
-  "released": "2026-06-11",
+  "released": "2026-06-19",
   "downloadUrl": "https://dayzmodclassic.com/downloads/DayZModClassic.exe",
   "changelogUrl": "https://dayzmodclassic.com/downloads/CHANGELOG.md",
   "minRequired": "1.0.0",
   "manifestUrl": "https://dayzmodclassic.com/downloads/manifest.json",
-  "sha256": "504d40a876c990106a301b1ac444799622ca31c3dbbfbc3460755e98dc44be3f"
+  "sha256": "b767af92a13f08e6c22bf9dfd34c2654450ba36622f1f3f3c0c6ebb74b766b92"
 }

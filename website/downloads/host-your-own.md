@@ -23,7 +23,7 @@ This guide walks you through running an official-compatible server on your own b
 
 ## Install steps
 
-1. Download `DayZModClassic-Server-1.0.0.zip` from the [downloads page](/downloads/).
+1. Download `DayZModClassic-Server-1.1.0.zip` from the [downloads page](/downloads/).
 2. Extract to a path with no spaces, for example `C:\dayzmodclassic-server\`.
 3. Open PowerShell **as Administrator** in the extracted folder.
 4. Run:

@@ -1,3 +1,47 @@
+# DayZ Mod Classic 1.1.0 - Release Build Tree
+
+Released 2026-06-19. Two artifacts, two pipelines.
+
+## Client (launcher + mod)
+
+The standalone Inno Setup installer is **retired**. The launcher installs and
+updates the mod itself from content-addressed blobs. Build + stage with:
+
+```powershell
+# from repo root
+.\tools\New-Release.ps1 -ModVersion 1.0.0 -LauncherVersion 1.1.0 -MinRequired 1.0.0
+```
+
+This publishes the launcher (`dotnet publish`), hashes `installer\payload\`,
+stages `website\downloads\files\<sha>.blob`, writes `manifest.json`, and bumps
+`website\version.json`. The script prints the exact `scp` deploy order. Mod PBOs
+are unchanged from 1.0.0, so `-ModVersion` stays 1.0.0; only the launcher bumps.
+
+## Server bundle
+
+Built by `tools\New-ServerBundle.ps1`. The deployable bundle is a golden tree
+(`MySQL\`, `@dayzmodclassic\`, `@hive\`, BE fix) overlaid with the repo's current
+`server\` tree (mission, configs, scripts) so the published zip carries the admin
+tools and the vehicle-fleet seeder. The script asserts the golden mod PBOs match
+`installer\payload` (else clients fail verifySignatures=2) and warns if the
+bundled DB is not empty. Heavy binaries are not in git, so point `-GoldenDir` at
+a prior assembled bundle:
+
+```powershell
+.\tools\New-ServerBundle.ps1 -Version 1.1.0 -GoldenDir C:\WorkDrive\arma2dayzmod\releases\1.0.0\server
+```
+
+Output: `DayZModClassic-Server-1.1.0.zip` (+ `.sha256`). The script prints the
+hash to paste into the downloads page and the scp deploy command.
+
+## What changed in 1.1.0
+
+- Launcher self-installs/updates the mod; installer retired.
+- In-game admin menu + web admin panel with live player map.
+- Server vehicle fleet seeds on a fresh DB (`MPMissions\dayz_1.Chernarus\vehicles\spawn_vehicles.sqf`).
+
+---
+
 # DayZ Mod Classic 1.0.0 - Release Build Tree
 
 Build artifacts for the v1.0.0 public release. Generated on 2026-05-26.
