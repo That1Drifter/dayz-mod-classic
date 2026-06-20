@@ -29,16 +29,48 @@ DZAdmin_cmd = ["", "", []];
 
     switch (_action) do {
         case "spawnVehicle": {
-            private ["_class","_pos","_dir","_veh"];
-            _class = _args select 0;
-            _pos   = _args select 1;
-            _dir   = _args select 2;
+            private ["_class","_pos","_dir","_persist","_veh"];
+            _class   = _args select 0;
+            _pos     = _args select 1;
+            _dir     = _args select 2;
+            // 4th arg (persist flag) is optional; default to non-persistent for
+            // older clients that don't send it.
+            _persist = false;
+            if (count _args > 3) then { _persist = _args select 3; };
             _veh = createVehicle [_class, _pos, [], 0, "CAN_COLLIDE"];
             _veh setDir _dir;
             _veh setPosATL _pos;
             _veh setFuel 1;
             _veh setDamage 0;
-            diag_log format ["[ADMIN] spawned %1 at %2", _class, _pos];
+            _veh setVariable ["OwnerID", "0", true];
+            // Non-nil ObjectID/ObjectUID: the stock anti-hack destroys vehicles
+            // with a nil ObjectID on GetIn / engine start (reads them as
+            // hacker-spawned). Same guard the seeder + heli wreck use
+            // (vehicles\spawn_vehicles.sqf, fixes\spawn_heliCrash_fix.sqf:31).
+            private "_uid";
+            _uid = _veh call dayz_objectUID;
+            _veh setVariable ["ObjectUID", _uid, true];
+            _veh setVariable ["ObjectID", _uid, true];
+            _veh call fnc_vehicleEventHandler;
+            dayz_serverObjectMonitor set [count dayz_serverObjectMonitor, _veh];
+
+            // Persist to Object_DATA via CHILD:308 (same write-only path the
+            // seeder uses). Spawned at full health, so the hitpoints array is
+            // empty. On the next restart server_monitor reloads it and assigns
+            // the real DB ObjectID. Temporary spawns skip this and vanish on
+            // restart.
+            if (_persist) then {
+                private "_key";
+                waitUntil { !hiveInUse };
+                hiveInUse = true;
+                _key = format ["CHILD:308:%1:%2:%3:%4:%5:%6:%7:%8:%9:",
+                    dayZ_instance, _class, 0, 0, [_dir,_pos], [], [], 1, _uid];
+                _key call server_hiveWrite;
+                hiveInUse = false;
+                diag_log format ["[ADMIN] persisted %1 uid=%2", _class, _uid];
+            };
+
+            diag_log format ["[ADMIN] spawned %1 at %2 uid=%3 persist=%4", _class, _pos, _uid, _persist];
         };
 
         case "teleportPlayer": {

@@ -142,6 +142,12 @@ _publish = {
 	hiveInUse = false;
 
 	_obj setVariable ["ObjectUID", _uid, true];
+	// Non-nil ObjectID: the stock anti-hack destroys vehicles with a nil ObjectID
+	// on GetIn / engine start (it reads them as hacker-spawned). CHILD:308 here is
+	// write-only and returns no DB row id, so set the UID as a sentinel; the real
+	// ObjectID is assigned on the next restart by server_monitor (CHILD:302). Same
+	// guard the heli-wreck spawner uses (fixes\spawn_heliCrash_fix.sqf:31).
+	_obj setVariable ["ObjectID", _uid, true];
 	diag_log format ["[VEH-SEED] published %1 uid=%2 fuel=%3", _class, _uid, _fuel];
 	_obj
 };

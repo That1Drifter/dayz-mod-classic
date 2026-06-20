@@ -119,6 +119,7 @@ class DZAdminMenu
         DZTitle, DZHint,
         DZPlayerList, DZVehicleList, DZClassEdit,
         DZ_TpMap, DZ_HealSelf, DZ_God, DZ_FullAmmo, DZ_RepairVeh, DZ_ClearWx,
+        DZ_Persist,
         DZ_TpTo, DZ_Bring, DZ_HealSel, DZ_SpawnVeh,
         DZ_Close
     };
@@ -205,6 +206,16 @@ class DZAdminMenu
         x = 0.51; y = 0.535; w = 0.17; h = 0.045;
         text = "Clear weather";
         action = "call DZAdmin_clearWeather";
+    };
+
+    // spawn-mode toggle (controls whether spawned vehicles persist to the DB)
+    class DZ_Persist : DZAdm_Button
+    {
+        idc = 7444;
+        x = 0.51; y = 0.59; w = 0.17; h = 0.045;
+        text = "Spawn mode: Persist";
+        colorBackground[] = {0.15,0.2,0.13,1};
+        action = "call DZAdmin_togglePersist";
     };
 
     // targeted column (under the list)

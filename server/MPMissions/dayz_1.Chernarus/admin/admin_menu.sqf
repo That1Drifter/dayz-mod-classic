@@ -7,6 +7,26 @@
 
 DZAdmin_god = false;
 DZAdmin_godEH = -1;
+DZAdmin_persist = true;   // spawned vehicles persist to the DB by default
+
+// Reflect DZAdmin_persist on the toggle button label.
+DZAdmin_syncPersistBtn = {
+    private "_c";
+    if (isNull (findDisplay 7400)) exitWith {};
+    _c = (findDisplay 7400) displayCtrl 7444;
+    if (DZAdmin_persist) then {
+        _c ctrlSetText "Spawn mode: Persist";
+        _c ctrlSetBackgroundColor [0.15,0.2,0.13,1];
+    } else {
+        _c ctrlSetText "Spawn mode: Temporary";
+        _c ctrlSetBackgroundColor [0.4,0.18,0.16,1];
+    };
+};
+
+DZAdmin_togglePersist = {
+    DZAdmin_persist = !DZAdmin_persist;
+    [] call DZAdmin_syncPersistBtn;
+};
 
 // Send a world-affecting command to the server.
 DZAdmin_send = {
@@ -22,6 +42,7 @@ DZAdmin_openMenu = {
     createDialog "DZAdminMenu";
     [] call DZAdmin_fillList;
     [] call DZAdmin_fillVehicles;
+    [] call DZAdmin_syncPersistBtn;
 };
 
 // DayZ Mod 1.6 spawnable vehicle set (from dayz_code player_monitor.sqf).
@@ -156,8 +177,11 @@ DZAdmin_spawnVeh = {
     if (_class == "") exitWith { systemChat "[Admin] Select a vehicle or type a classname."; };
     _dir = getDir player;
     _pos = player modelToWorld [0, 8, 0];
-    [ "spawnVehicle", [_class, _pos, _dir] ] call DZAdmin_send;
-    systemChat format ["[Admin] Spawn requested: %1", _class];
+    [ "spawnVehicle", [_class, _pos, _dir, DZAdmin_persist] ] call DZAdmin_send;
+    private "_mode";
+    _mode = "temporary";
+    if (DZAdmin_persist) then { _mode = "persistent"; };
+    systemChat format ["[Admin] Spawn requested: %1 (%2)", _class, _mode];
 };
 
 DZAdmin_clearWeather = {
