@@ -14,8 +14,8 @@
 */
 
 spawn_heliCrash = {
-	private ["_position","_veh","_num","_config","_itemType","_itemChance",
-			 "_weights","_index","_iArray","_c","_dir","_dist","_t","_nearby"];
+	private ["_position","_veh","_num","_config","_itemType",
+			 "_iArray","_c","_dir","_dist","_t","_nearby"];
 
 	// random land position within ~4 km of map centre (no BIS_fnc_findSafePos)
 	_c = getMarkerPos "center";
@@ -36,15 +36,14 @@ spawn_heliCrash = {
 	dayzFire = [_veh,2,time,false,false];
 	publicVariable "dayzFire";
 
-	_num        = round (random 4) + 3;
-	_config     = configFile >> "CfgBuildingLoot" >> "HeliCrash";
-	_itemType   = getArray (_config >> "itemType");
-	_itemChance = getArray (_config >> "itemChance");
-	_weights    = [_itemType,_itemChance] call fnc_buildWeightedArray;
+	_num      = round (random 4) + 3;
+	_config   = configFile >> "CfgBuildingLoot" >> "HeliCrash";
+	_itemType = getArray (_config >> "itemType");
 
 	for "_x" from 1 to _num do {
-		_index  = _weights select (floor (random (count _weights)));   // no BIS_fnc_selectRandom
-		_iArray = _itemType select _index;
+		// fnc_buildWeightedArray is undefined server-side too; pick uniformly
+		// from itemType and deep-copy so the shared config array is untouched.
+		_iArray = + (_itemType select (floor (random (count _itemType))));
 		_iArray set [2,_position];
 		_iArray set [3,5];
 		_iArray call spawn_loot;
