@@ -12,17 +12,22 @@
 	count is >0 on the next boot, so it never double-spawns. A full DB wipe (or
 	total fleet destruction) drops the count back to 0 and lets it reseed.
 
+	No BIS_fnc_* dependency on purpose: the Functions module is not reliably
+	initialized server-side in 1.6 (BIS_fnc_selectRandom / BIS_fnc_findSafePos
+	come back undefined, same gap the README flags for spawn_heliCrash). We use
+	core commands only: random/floor/count for selection and surfaceIsWater for
+	land/water placement.
+
 	Stock feel: vehicles spawn damaged and low on fuel, scattered near towns.
-	Classnames below are canonical Chernarus 1.6; verify against the RPT on
-	first boot and prune any that log "Cannot create non-ai vehicle".
 */
 
 if (!isServer) exitWith {};
 
 private ["_landTarget","_anchors","_bikes","_cars","_vans","_heavy","_boats",
-		 "_boatSpots","_live","_publish","_pickClass","_i","_anchor","_pos","_class"];
+		 "_boatSpots","_live","_publish","_pickClass","_pickLandPos","_pickWaterPos",
+		 "_i","_pos","_class"];
 
-// --- wait for server_monitor to finish hydrating the world ---------------
+// --- wait for server_monitor to finish hydrating the world ----------------
 waitUntil { uiSleep 1; !isNil "allowConnection" && {allowConnection} };
 uiSleep 5;
 
@@ -46,7 +51,7 @@ _anchors = [
 	[5990,9550], [3700,4380], [3330,2480]
 ];
 
-// weighted class pools (stock Chernarus civilian set)
+// weighted class pools (stock Chernarus civilian set, all verified in CfgVehicles)
 _bikes = ["TT650_Civ","TT650_TK_CIV_EP1","ATV_US_EP1","ATV_CZ_EP1"];
 _cars  = ["VWGolf","Skoda","SkodaBlue","SkodaRed","SkodaGreen",
 		  "Lada1","Lada2","LadaLM","datsun1_civil_3_open","datsun1_civil_1_open",
@@ -59,13 +64,37 @@ _boatSpots = [ [6900,2350], [10330,1980], [12500,8770] ];  // Cherno / Elektro /
 
 // pick a weighted class: 40% bikes, 35% cars, 15% vans, 10% heavy
 _pickClass = {
-	private "_r"; _r = random 1;
-	switch (true) do {
-		case (_r < 0.40): { _bikes call BIS_fnc_selectRandom };
-		case (_r < 0.75): { _cars  call BIS_fnc_selectRandom };
-		case (_r < 0.90): { _vans  call BIS_fnc_selectRandom };
-		default          { _heavy call BIS_fnc_selectRandom };
+	private ["_r","_pool"];
+	_r = random 1;
+	_pool = _bikes;
+	if (_r >= 0.40) then { _pool = _cars };
+	if (_r >= 0.75) then { _pool = _vans };
+	if (_r >= 0.90) then { _pool = _heavy };
+	_pool select (floor (random (count _pool)))
+};
+
+// jittered land position near an anchor (retry off water). Returns [x,y,0].
+_pickLandPos = {
+	private ["_a","_p","_t"];
+	_a = _anchors select (floor (random (count _anchors)));
+	_p = [(_a select 0), (_a select 1), 0];
+	for "_t" from 1 to 25 do {
+		_p = [(_a select 0) + (random 280) - 140, (_a select 1) + (random 280) - 140, 0];
+		if (!surfaceIsWater _p) exitWith {};
 	};
+	_p
+};
+
+// jittered water position near a coast spot (retry onto water). Returns [x,y,0].
+_pickWaterPos = {
+	private ["_s","_p","_t"];
+	_s = _this;
+	_p = [(_s select 0), (_s select 1), 0];
+	for "_t" from 1 to 25 do {
+		_p = [(_s select 0) + (random 140) - 70, (_s select 1) + (random 140) - 70, 0];
+		if (surfaceIsWater _p) exitWith {};
+	};
+	_p
 };
 
 // create + persist one vehicle (damaged, low fuel) -> object_data via CHILD:308
@@ -119,17 +148,16 @@ _publish = {
 
 // --- land vehicles --------------------------------------------------------
 for "_i" from 1 to _landTarget do {
-	_anchor = _anchors call BIS_fnc_selectRandom;
-	_pos    = [_anchor, 0, 140, 8, 0, 0.45, 0] call BIS_fnc_findSafePos;
-	_class  = call _pickClass;
+	_pos   = call _pickLandPos;
+	_class = call _pickClass;
 	[_class, _pos] call _publish;
 	uiSleep 0.5;
 };
 
-// --- boats (coast, water-side safe pos) -----------------------------------
+// --- boats (coast, water-side) --------------------------------------------
 {
-	_pos   = [_x, 0, 120, 6, 2, 0.6, 0] call BIS_fnc_findSafePos;  // water mode 2
-	_class = _boats call BIS_fnc_selectRandom;
+	_pos   = _x call _pickWaterPos;
+	_class = _boats select (floor (random (count _boats)));
 	[_class, _pos] call _publish;
 	uiSleep 0.5;
 } forEach _boatSpots;
