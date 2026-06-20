@@ -40,6 +40,8 @@ if (isServer) then {
 	//Run the server monitor
 	//_id = ["Volha_1_TK_CIV_EP1",getMarkerPos "carloc",0] spawn object_spawnDamVehicle;
 	hiveInUse	=	true;
+	//Override the broken (BIS_fnc) spawn_heliCrash before server_monitor's heli loop. See fixes\spawn_heliCrash_fix.sqf
+	call compile preprocessFileLineNumbers "fixes\spawn_heliCrash_fix.sqf";
 	_serverMonitor = 	[] execVM "\z\addons\dayz_code\system\server_monitor.sqf";
 	//Seed the vehicle fleet on a fresh DB (self-guards; no double-spawn). See vehicles\spawn_vehicles.sqf
 	_vehicleSeed =		[] execVM "vehicles\spawn_vehicles.sqf";
