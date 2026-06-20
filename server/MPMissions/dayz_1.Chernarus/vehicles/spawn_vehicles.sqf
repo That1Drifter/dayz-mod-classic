@@ -24,7 +24,7 @@
 if (!isServer) exitWith {};
 
 private ["_landTarget","_anchors","_bikes","_cars","_vans","_heavy","_boats",
-		 "_boatSpots","_live","_publish","_pickClass","_pickLandPos","_pickWaterPos",
+		 "_boatSpots","_heliSpots","_live","_publish","_pickClass","_pickLandPos","_pickWaterPos",
 		 "_i","_pos","_class"];
 
 // --- wait for server_monitor to finish hydrating the world ----------------
@@ -52,15 +52,20 @@ _anchors = [
 ];
 
 // weighted class pools (stock Chernarus civilian set, all verified in CfgVehicles)
-_bikes = ["TT650_Civ","TT650_TK_CIV_EP1","ATV_US_EP1","ATV_CZ_EP1"];
+_bikes = ["TT650_Civ","TT650_TK_CIV_EP1","ATV_US_EP1","ATV_CZ_EP1","Old_bike_TK_CIV_EP1"];
 _cars  = ["VWGolf","Skoda","SkodaBlue","SkodaRed","SkodaGreen",
 		  "Lada1","Lada2","LadaLM","datsun1_civil_3_open","datsun1_civil_1_open",
-		  "Volha_1_TK_CIV_EP1","Volha_2_TK_CIV_EP1","hilux1_civil_3_open"];
+		  "Volha_1_TK_CIV_EP1","Volha_2_TK_CIV_EP1","hilux1_civil_3_open","car_hatchback"];
 _vans  = ["S1203_TK_CIV_EP1","UAZ_Unarmed_TK_EP1","tractorOld"];
 _heavy = ["Ural_TK_CIV_EP1","V3S_Civ","Ikarus"];
 
 _boats     = ["PBX","Smallboat_1","Fishing_Boat"];
 _boatSpots = [ [6900,2350], [10330,1980], [12500,8770] ];  // Cherno / Elektro / Berezino coast
+
+// helis spawn on open airfield ground (not the random town roll, which could
+// drop them inside a building). One UH1H_DZ per airfield, damaged like the
+// rest so they need parts before they fly.
+_heliSpots = [ [4530,10250], [12060,12640] ];  // NWAF / NEAF
 
 // pick a weighted class: 40% bikes, 35% cars, 15% vans, 10% heavy
 _pickClass = {
@@ -168,4 +173,17 @@ for "_i" from 1 to _landTarget do {
 	uiSleep 0.5;
 } forEach _boatSpots;
 
-diag_log format ["[VEH-SEED] done. Seeded %1 land + %2 boats.", _landTarget, count _boatSpots];
+// --- helis (one per airfield, open ground) --------------------------------
+{
+	private ["_a","_p","_t"];
+	_a = _x;
+	_p = [(_a select 0), (_a select 1), 0];
+	for "_t" from 1 to 25 do {
+		_p = [(_a select 0) + (random 200) - 100, (_a select 1) + (random 200) - 100, 0];
+		if (!surfaceIsWater _p) exitWith {};
+	};
+	["UH1H_DZ", _p] call _publish;
+	uiSleep 0.5;
+} forEach _heliSpots;
+
+diag_log format ["[VEH-SEED] done. Seeded %1 land + %2 boats + %3 helis.", _landTarget, count _boatSpots, count _heliSpots];
