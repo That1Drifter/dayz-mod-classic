@@ -41,6 +41,8 @@ if (isServer) then {
 	//_id = ["Volha_1_TK_CIV_EP1",getMarkerPos "carloc",0] spawn object_spawnDamVehicle;
 	hiveInUse	=	true;
 	_serverMonitor = 	[] execVM "\z\addons\dayz_code\system\server_monitor.sqf";
+	//Seed the vehicle fleet on a fresh DB (self-guards; no double-spawn). See vehicles\spawn_vehicles.sqf
+	_vehicleSeed =		[] execVM "vehicles\spawn_vehicles.sqf";
 };
 
 if (!isDedicated) then {
